@@ -75,7 +75,6 @@ public fun increment(counter: &mut Counter){
 public fun decrement(counter: &mut Counter){
     assert!(counter.value > 0, COUNTER_ZERO);
     counter.value = counter.value - 1;
-    counter.value = counter.value + 1;
     let event = CounterChangeEvent{
         id: *counter.id.as_inner(),
         value: counter.value,

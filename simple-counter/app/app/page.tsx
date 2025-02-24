@@ -1,120 +1,147 @@
 "use client";
-import { useState, useEffect } from 'react';
-// import { ConnectButton } from '@mysten/wallet-kit';
-// import { JsonRpcProvider, devnetConnection } from '@mysten/sui.js';
-import { Button} from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
+import { useState, useEffect, useCallback, useMemo } from "react";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { ConnectButton, useWallet } from "@suiet/wallet-kit";
+import { Transaction } from "@mysten/sui/transactions";
+import { getObject } from "./utils";
+import { SuiClient, getFullnodeUrl } from "@mysten/sui/client";
 
-// const provider = new JsonRpcProvider(devnetConnection);
-// const CONTRACT_ADDRESS = "<YOUR_SMART_CONTRACT_ADDRESS>";
+const PACKAGE_ID = "0x4b344f8b316f0c7cd70941a1ff750d91ae703384c512e6f0de26e1f6b7b77357";
+const GLOBAL_COUNTER = "0x8cec41d1cd30ec456edd4bbe86f70f7daff3aacd0447e8defb4414d3105293ac";
+
 export default function Home() {
-  const [loading, setLoading] = useState(false);
-  const [userCounters, setUserCounters] = useState([]);
   const [globalCounter, setGlobalCounter] = useState(0);
+  const [counters, setCounters] = useState<{ [id: string]: number }>({});
+  useEffect(() => {
+    try {
+      const savedCounters = localStorage.getItem("user_counters");
+      if (savedCounters) setCounters(JSON.parse(savedCounters));
+    } catch (error) {
+      console.error("Failed to parse localStorage data:", error);
+    }
+  }, []);
 
-  const walletAddress = "0x716f3c01d2c8bc9e607aaf07725fc20ca82b2c0379e5d50a27752675291c254e";
+
+  const wallet = useWallet();
+  const client = new SuiClient({ url: getFullnodeUrl("testnet") });
 
   useEffect(() => {
-    console.log(userCounters);
     fetchCounters();
   }, []);
 
-  async function fetchCounters() {
+  useEffect(() => {
+    localStorage.setItem("user_counters", JSON.stringify(counters));
+  }, [Object.keys(counters).length]);
+  
+  const fetchCounters = useCallback(async () => {
     try {
-      // const counters = await provider.getOwnedObjects({ owner: CONTRACT_ADDRESS });
-      const counters = { data: [
-        {
-          id: "0x08b196c09fedb74a7fa8028205dcd5e80faab4f3f9507a35fd25e203afa4905e",
-          data: {
-            value: 0,
-          }
-        },
-        {
-          id: "0xe18e09468d946a1a14533907b4717bc7d7d0611931662439f1e2bfe98b140940",
-          data: {
-            value: 0,
-          }
-        },
-        
-      ] };
-      setUserCounters(counters?.data || []);
-      const totalValue = counters?.data.reduce((sum, counter) => sum + (counter.data?.value || 0), 0);
-      setGlobalCounter(totalValue);
+      const global_count = await getObject(GLOBAL_COUNTER);
+      setGlobalCounter(global_count);
     } catch (error) {
       console.error("Failed to fetch counters:", error);
     }
-  }
+  }, []);
 
-  async function handleTransaction(action: string, counterId: string) {
-    setLoading(true);
+  const fetchEventsWithRetry = async (txDigest : string, maxRetries = 5, delay = 1000) => {
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      try {
+        return await client.queryEvents({ query: { Transaction: txDigest } });
+      } catch (error) {
+        console.error(`Attempt ${attempt} failed:`, error);
+        if (attempt === maxRetries) throw error;
+        await new Promise((resolve) => setTimeout(resolve, delay));
+      }
+    }
+  };
+
+  const handleTx = async (action: string, counterId : string | null = null) => {
     try {
-      console.log(`Performing ${action} action on counter ${counterId}...`);
-      // Simulate transaction logic
-      setUserCounters(prevCounters =>
-        prevCounters.map(counter =>
-          counter.id === counterId
-            ? { ...counter, data: { ...counter.data, value: action === "increment" ? counter.data.value + 1 : action === "decrement" ? counter.data.value - 1 : 0 } }
-            : counter
-        )
-      );
-      setGlobalCounter(prev => (action === "increment" ? prev + 1 : action === "decrement" ? prev - 1 : prev));
+      const tx = new Transaction();
+      const isGlobal = counterId === GLOBAL_COUNTER;
+  
+      tx.moveCall({
+        target: `${PACKAGE_ID}::simple_counter::${action}`,
+        arguments: counterId ? [tx.object(counterId)] : [],
+      });
+  
+      const txResult = await wallet.signAndExecuteTransaction({ transaction: tx });
+      const eventsResult = await fetchEventsWithRetry(txResult.digest);
+      if (eventsResult != undefined){
+        // const eventData = eventsResult.data[0]?.parsedJson;
+        const eventData = eventsResult.data[0]?.parsedJson as { id: string; value: number };
+        if (!eventData) throw new Error("No event data found");
+        if (isGlobal) {
+          setGlobalCounter(eventData.value);
+        } else {
+          setCounters((prev) => {
+            const updatedCounters = { ...prev };
+            if (action === "delete_counter") delete updatedCounters[counterId as string];
+            else updatedCounters[eventData.id] = eventData.value;
+            return updatedCounters;
+          });
+        }
+    }
     } catch (error) {
       console.error("Transaction failed:", error);
     }
-    setLoading(false);
-  }
+  };
+  
+
+  const countersList = useMemo(() => (
+    Object.entries(counters).map(([id, value]) => (
+      <li key={id} className="flex flex-col items-center bg-gray-100 p-4 rounded-lg shadow-lg border border-gray-300 mb-4 w-full max-w-xs sm:max-w-sm md:max-w-md">
+        <p className="text-lg font-semibold text-gray-800 flex flex-col items-center gap-2">
+          <a href={`https://suiscan.xyz/testnet/object/${id}`} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline hover:text-blue-800">
+            {id ? `${id.slice(0, 6)}...${id.slice(-4)}` : "Unknown"}
+          </a>
+          <span className="text-blue-500 text-xl font-bold mt-1">{value}</span>
+        </p>
+        <div className="flex flex-wrap justify-center gap-3 mt-2">
+          <Button onClick={() => handleTx("increment", id)} disabled={!wallet.connected} className="bg-blue-500 text-white hover:bg-blue-600 px-3 py-1 rounded-md">
+            ➕ Increment
+          </Button>
+          <Button onClick={() => handleTx("decrement", id)} disabled={!wallet.connected || value === 0} className="bg-red-500 text-white hover:bg-red-600 px-3 py-1 rounded-md">
+            ➖ Decrement
+          </Button>
+          <Button onClick={() => handleTx("delete_counter", id)} disabled={!wallet.connected} className="bg-gray-500 text-white hover:bg-gray-600 px-3 py-1 rounded-md">
+            ❌ Delete
+          </Button>
+        </div>
+      </li>
+    ))
+  ), [counters, wallet.connected]); // Depend only on counters and wallet status
+  
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-blue-100 to-blue-300 text-gray-900 p-6 relative w-full">
       <div className="absolute top-4 right-6">
-        <Button className="bg-purple-500 text-white hover:bg-purple-600 px-4 py-2 rounded-lg shadow-md">
-          🔗 Connect Wallet
-        </Button>
+        <ConnectButton/>
       </div>
       <Card className="p-6 bg-white rounded-2xl shadow-2xl text-center border border-gray-200 w-full max-w-md sm:max-w-lg md:max-w-xl lg:max-w-2xl">
-        <h1 className="text-3xl sm:text-4xl font-extrabold mb-6 text-blue-600">BlockchainBard's Simple Counter</h1>
+        <h1 className="text-3xl sm:text-4xl font-extrabold mb-6 text-blue-600">BlockchainBard Simple Counter</h1>
         <div className="mb-6">
           <h2 className="text-xl sm:text-2xl font-semibold text-gray-700">Global Counter</h2>
-          <a href={`https://etherscan.io/address/${walletAddress}`} target="_blank" rel="noopener noreferrer" className="text-sm text-blue-600 underline">
-            {walletAddress ? `${walletAddress.slice(0, 6)}...${walletAddress.slice(-4)}` : "Connect Wallet"}
+          <a href={`https://suiscan.xyz/testnet/object/${GLOBAL_COUNTER}`} target="_blank" rel="noopener noreferrer" className="text-sm text-blue-600 underline">
+            {GLOBAL_COUNTER ? `${GLOBAL_COUNTER.slice(0, 6)}...${GLOBAL_COUNTER.slice(-4)}` : "Connect Wallet"}
           </a>
           <p className="text-4xl sm:text-5xl font-bold my-3 text-blue-500">{globalCounter}</p>
           <div className="flex flex-wrap justify-center gap-4">
-            <Button onClick={() => setGlobalCounter(globalCounter + 1)} disabled={loading} className="bg-blue-500 text-white hover:bg-blue-600 px-4 py-2 rounded-lg shadow-md">
+            <Button onClick={() => handleTx("increment", GLOBAL_COUNTER)} disabled={!wallet.connected} className="bg-blue-500 text-white hover:bg-blue-600 px-4 py-2 rounded-lg shadow-md">
               ➕ Increment
             </Button>
-            <Button onClick={() => setGlobalCounter(globalCounter - 1)} disabled={loading || globalCounter === 0} className="bg-red-500 text-white hover:bg-red-600 px-4 py-2 rounded-lg shadow-md">
+            <Button onClick={() => handleTx("decrement", GLOBAL_COUNTER)} disabled={!wallet.connected || globalCounter === 0} className="bg-red-500 text-white hover:bg-red-600 px-4 py-2 rounded-lg shadow-md">
               ➖ Decrement
             </Button>
           </div>
         </div>
-        <Button onClick={() => handleTransaction("create", null)} disabled={loading} className="bg-green-500 text-white hover:bg-green-600 px-5 py-2 rounded-lg shadow-md mt-4">
+        <Button onClick={() => handleTx("create_counter", null)} disabled={!wallet.connected} className="bg-green-500 text-white hover:bg-green-600 px-5 py-2 rounded-lg shadow-md mt-4">
           🎉 Create Counter
         </Button>
         <h2 className="text-lg sm:text-xl font-semibold mt-8 text-gray-700">Your Counters</h2>
         <ul className="mt-4 w-full flex flex-col items-center">
-          {userCounters.map((counter, index) => (
-            <li key={counter.id} className="flex flex-col items-center bg-gray-100 p-4 rounded-lg shadow-lg border border-gray-300 mb-4 w-full max-w-xs sm:max-w-sm md:max-w-md">
-              <p className="text-lg font-semibold text-gray-800 flex flex-col items-center gap-2">
-                <a href={`https://etherscan.io/tx/${counter.id}`} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline hover:text-blue-800">
-                  {counter.id ? `${counter.id.slice(0, 6)}...${counter.id.slice(-4)}` : "Unknown"}
-                </a>
-                <span className="text-blue-500 text-xl font-bold mt-1">{counter.data?.value || 0}</span>
-              </p>
-              <div className="flex flex-wrap justify-center gap-3 mt-2">
-                <Button onClick={() => handleTransaction("increment", counter.id)} disabled={loading} className="bg-blue-500 text-white hover:bg-blue-600 px-3 py-1 rounded-md">
-                  ➕ Increment
-                </Button>
-                <Button onClick={() => handleTransaction("decrement", counter.id)} disabled={loading || counter.data.value === 0} className="bg-red-500 text-white hover:bg-red-600 px-3 py-1 rounded-md">
-                  ➖ Decrement
-                </Button>
-                <Button onClick={() => handleTransaction("delete", counter.id)} disabled={loading} className="bg-gray-500 text-white hover:bg-gray-600 px-3 py-1 rounded-md">
-                  ❌ Delete
-                </Button>
-              </div>
-            </li>
-          ))}
-        </ul>
+        {countersList} {/* Use the memoized list here */}
+      </ul>
       </Card>
     </div>
   );
