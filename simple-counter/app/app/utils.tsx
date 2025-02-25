@@ -32,7 +32,7 @@ export async function getObject(objectId : string) {
       return 0;
     }
   } catch (error) {
-    console.error("❌ Error fetching dynamic field object:", error);
+    console.error("❌ Error fetching dynamic field objects:", error);
     return 0;
   }
 }
