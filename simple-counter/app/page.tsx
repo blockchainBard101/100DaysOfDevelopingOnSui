@@ -27,10 +27,6 @@ export default function Home() {
   const client = new SuiClient({ url: getFullnodeUrl("testnet") });
 
   useEffect(() => {
-    fetchCounters();
-  }, []);
-
-  useEffect(() => {
     localStorage.setItem("user_counters", JSON.stringify(counters));
   }, [Object.keys(counters).length]);
   
@@ -42,6 +38,10 @@ export default function Home() {
       console.error("Failed to fetch counters:", error);
     }
   }, []);
+
+  useEffect(() => {
+    fetchCounters();
+  }, [fetchCounters]);
 
   const fetchEventsWithRetry = async (txDigest : string, maxRetries = 5, delay = 1000) => {
     for (let attempt = 1; attempt <= maxRetries; attempt++) {
