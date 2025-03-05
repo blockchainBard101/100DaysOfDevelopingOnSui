@@ -1,6 +1,11 @@
 module smart_contract::decentralized_lottery;
 
-use smart_contract::ticket::Ticket;
+use smart_contract::ticket::{Self, Ticket};
+use sui::sui::SUI;
+use sui::coin::Coin;
+use sui::clock;
+
+const EInvalidPrice : u64= 0;
 
 public struct Lottery has key{
     id: UID,
@@ -24,4 +29,9 @@ public fun create_lottery(ticket_price: u64, start_time: u64, end_time: u64, ctx
     };
 
     transfer::share_object(lottery);
+}
+
+public fun buy_ticket(lottery: &mut Lottery, coin: Coin<SUI>){
+    assert!(coin.value() == lottery.ticket_price, EInvalidPrice);
+    ticket.buy_ticket();
 }

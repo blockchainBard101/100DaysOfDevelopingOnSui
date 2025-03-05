@@ -2,10 +2,11 @@ module smart_contract::ticket;
 use std::string::{Self, String};
 use sui::url::{Self, Url};
 use sui::event;
+use sui::clock::{Clock};
 
 public struct Ticket has key, store {
     id: UID,                 
-    name: String,            
+    lottery_name: String,            
     description: String,
     lottery_id: ID,
     price: u64,       
@@ -23,11 +24,11 @@ public struct TicketMinted has copy, drop {
     price: u64,    
     name: String,  
     ticket_number: u64,
-    lottery_number: u64         
+    lottery_id: ID         
 }
 
 public fun name(ticket: &Ticket): &String {
-    &ticket.name
+    &ticket.lottery_name
 }
 
 public fun description(ticket: &Ticket): &String {
@@ -39,32 +40,41 @@ public fun url(ticket: &Ticket): &Url {
 }
 
 #[allow(lint(self_transfer))]
-public fun mint_to_sender(
-    name: vector<u8>,
+public fun buy_ticket(
+    lottery_name: vector<u8>,
     price: u64,
+    lottery_id: ID,
     description: vector<u8>,
     url: vector<u8>,
     start_time: u64,
-    end_time: u64,          
+    end_time: u64,
+    ticket_number: u64,
+    clock: &Clock,          
     ctx: &mut TxContext
 ){
     let sender = ctx.sender();
 
     let ticket =Ticket{
         id: object::new(ctx),      
-        name: string::utf8(name),     
-        price,    
+        lottery_name: string::utf8(lottery_name),        
         description: string::utf8(description),   
+        lottery_id,
+        price,
         url: url::new_unsafe_from_bytes(url),
-        start_time,
-        end_time
+        lotttey_start_time: start_time,
+        lotttey_end_time: end_time,
+        bought_at: clock.timestamp_ms(),
+        owner: sender,
+        ticket_number
     };
 
     event::emit(TicketMinted {
         object_id: object::id(&ticket),
         owner: sender,
         price: price,
-        name: ticket.name,
+        name: ticket.lottery_name,
+        ticket_number,
+        lottery_id
     });
 
     transfer::public_transfer(ticket, sender);
@@ -74,6 +84,6 @@ public fun burn(
     ticket: Ticket,
     _: &mut TxContext
 ) {
-    let Ticket { id, name: _,price: _, description: _, url: _ ,start_time: _, end_time: _} = ticket;
+    let Ticket { id, lottery_name: _, description: _, lottery_id: _,price: _, url: _ ,lotttey_start_time: _, lotttey_end_time: _, bought_at : _, owner: _, ticket_number: _} = ticket;
     id.delete();
 }
