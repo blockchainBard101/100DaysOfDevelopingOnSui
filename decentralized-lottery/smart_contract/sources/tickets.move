@@ -1,6 +1,6 @@
 module smart_contract::ticket;
 use std::string::{Self, String};
-use sui::url::{Self, Url};
+use sui::url::Url;
 use sui::event;
 use sui::clock::{Clock};
 
@@ -45,22 +45,21 @@ public fun buy_ticket(
     price: u64,
     lottery_id: ID,
     description: vector<u8>,
-    url: vector<u8>,
+    url: Url,
     start_time: u64,
     end_time: u64,
     ticket_number: u64,
     clock: &Clock,          
     ctx: &mut TxContext
-){
+): ID {
     let sender = ctx.sender();
-
     let ticket =Ticket{
         id: object::new(ctx),      
         lottery_name: string::utf8(lottery_name),        
         description: string::utf8(description),   
         lottery_id,
         price,
-        url: url::new_unsafe_from_bytes(url),
+        url: url,
         lotttey_start_time: start_time,
         lotttey_end_time: end_time,
         bought_at: clock.timestamp_ms(),
@@ -77,7 +76,9 @@ public fun buy_ticket(
         lottery_id
     });
 
+    let ticket_id = object::id(&ticket);
     transfer::public_transfer(ticket, sender);
+    ticket_id
 }
 
 public fun burn(
