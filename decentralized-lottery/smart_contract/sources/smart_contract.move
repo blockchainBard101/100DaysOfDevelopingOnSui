@@ -1,7 +1,7 @@
 module smart_contract::decentralized_lottery;
 
 use smart_contract::ticket;
-use sui::{sui::SUI, clock::Clock, url::{Self, Url}, balance::{Self,Balance}, coin::{Self,Coin}, random::{Random, new_generator}, table::{Self, Table}};
+use sui::{sui::SUI, clock::Clock, url::{Self, Url}, balance::{Self,Balance}, coin::{Self,Coin}, random::{Random, new_generator}, table::{Self, Table}, event};
 use std::string::String;
 
 const EInvalidPrice : u64= 0;
@@ -21,6 +21,15 @@ public struct Lottery has key{
     price_pool: Balance<SUI>,
     ticket_url: Url,
     created_at: u64
+}
+
+public struct LotteryCreatedEvent has copy, drop{
+    id: ID,
+    
+}
+
+public struct LotteryTicketBuy has copy, drop{
+
 }
 
 public fun create_lottery(name: String, description: String, ticket_price: u64, start_time: u64, end_time: u64, ticket_url: vector<u8>, clock: &Clock, ctx: &mut TxContext){
@@ -60,7 +69,6 @@ public fun buy_ticket(
         ticket_number, 
         clock, 
         ctx);
-    
     lottery.tickets.add(ticket_number, ticket_id);
     coin::put(&mut lottery.price_pool, coin);
 }
