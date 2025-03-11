@@ -31,6 +31,14 @@ public fun name(ticket: &Ticket): &String {
     &ticket.lottery_name
 }
 
+public fun get_id(ticket: &Ticket): ID {
+    *ticket.id.as_inner()
+}
+
+public fun get_owner(ticket: &Ticket): address {
+    ticket.owner
+}
+
 public fun description(ticket: &Ticket): &String {
     &ticket.description
 }
