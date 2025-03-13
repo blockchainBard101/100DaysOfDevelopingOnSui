@@ -1,8 +1,19 @@
 module smart_contract::decentralized_lottery;
 
 use smart_contract::ticket::{Self, Ticket};
-use sui::{sui::SUI, clock::Clock, url::{Self, Url}, balance::{Self,Balance}, coin::{Self,Coin}, random::{Random, new_generator}, table::{Self, Table}, event, package::{Self, Publisher}};
+use sui::{
+    sui::SUI, 
+    clock::Clock, 
+    url::{Self, Url}, 
+    balance::{Self,Balance}, 
+    coin::{Self,Coin}, 
+    random::{Random, new_generator}, 
+    table::{Self, Table}, 
+    event, 
+    package::{Self, Publisher}
+};
 use std::string::String;
+use std::debug;
 
 const EInvalidPrice : u64= 0;
 const ELotteryInProgress : u64 = 1;
@@ -57,7 +68,7 @@ public struct LotteryCreatedEvent has copy, drop{
     percentage_decimals: u8,
 }
 
-public struct LotteryTicketBuy has copy, drop{
+public struct LotteryTicketBuyEvent has copy, drop{
     id: ID,
     name: String,
     price: u64,
@@ -69,7 +80,7 @@ public struct LotteryTicketBuy has copy, drop{
     ticket_url: Url,
 }
 
-public struct LotteryWinner has copy, drop{
+public struct LotteryWinnerEvent has copy, drop{
     id: ID,
     name: String,
     winner: ID,
@@ -78,6 +89,11 @@ public struct LotteryWinner has copy, drop{
     end_time: u64,
     ticket_url: Url,
     created_at: u64,
+}
+
+public struct EditedCommissionEvent has copy, drop{
+    owner_commision_percentage: u8,
+    creator_commision_percentage: u8,
 }
 
 fun init(otw: DECENTRALIZED_LOTTERY, ctx: &mut TxContext){
@@ -97,6 +113,10 @@ public entry fun edit_commission(owner: &mut Owner, cap: &Publisher, owner_commi
     assert!(cap.from_module<Owner>(), ENotAuthorized);
     owner.owner_commision_percentage = owner_commision_percentage;
     owner.creator_commision_percentage = creator_commision_percentage;
+    event::emit(EditedCommissionEvent{
+        owner_commision_percentage,
+        creator_commision_percentage,
+    });
 }
 
 public fun create_lottery(creator: &Owner, name: String, description: String, ticket_price: u64, start_time: u64, end_time: u64, ticket_url: vector<u8>, clock: &Clock, ctx: &mut TxContext){
@@ -162,7 +182,7 @@ public fun buy_ticket(
     coin::put(&mut owner.commissions, owner_commision_coin);
     coin::put(&mut lottery.creator_commission, creator_commision_coin);
     coin::put(&mut lottery.price_pool, payment_coin);
-    event::emit(LotteryTicketBuy{
+    event::emit(LotteryTicketBuyEvent{
         id: *lottery.id.as_inner(),
         name: lottery.name,
         price: lottery.ticket_price,
@@ -175,7 +195,7 @@ public fun buy_ticket(
     });
 }
 
-entry fun get_winner(
+entry fun determine_winner(
     lottery: &mut Lottery, 
     r: &Random, 
     clock: &Clock, 
@@ -185,10 +205,11 @@ entry fun get_winner(
     assert!(lottery.winner.is_none(), ELotteryAlreadyCompleted);
     assert!(lottery.tickets.length() > 0, ENoParticipants);
     let mut generator = r.new_generator(ctx);
-    let winner = generator.generate_u64_in_range(0, lottery.tickets.length());
+    let winner = generator.generate_u64_in_range(0, lottery.tickets.length()-1);
+    // debug::print(&winner);
     let winner_ticket_id = lottery.tickets.borrow(winner);
     lottery.winner = option::some(*winner_ticket_id);
-    event::emit(LotteryWinner{
+    event::emit(LotteryWinnerEvent{
         id: *lottery.id.as_inner(),
         name: lottery.name,
         winner: *winner_ticket_id,
@@ -230,6 +251,11 @@ public fun withdraw_owner_commission(owner: &mut Owner, cap : &Publisher, ctx: &
     let commission_coin = commission_balance.into_coin(ctx);
     transfer::public_transfer(commission_coin, ctx.sender());
 }
+
+public fun get_ticket_price(lottery: &Lottery): u64{
+    lottery.ticket_price
+}
+
 
 fun get_percent(amount: u64, percent: u64, decimals: u64): u64 {
     let scaled_percent = percent * pow(10, decimals);
