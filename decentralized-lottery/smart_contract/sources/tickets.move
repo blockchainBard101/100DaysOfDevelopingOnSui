@@ -35,6 +35,7 @@ public fun get_id(ticket: &Ticket): ID {
     *ticket.id.as_inner()
 }
 
+
 public fun get_owner(ticket: &Ticket): address {
     ticket.owner
 }

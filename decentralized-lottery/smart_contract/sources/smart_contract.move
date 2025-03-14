@@ -13,7 +13,7 @@ use sui::{
     package::{Self, Publisher}
 };
 use std::string::String;
-use std::debug;
+// use std::debug;
 
 const EInvalidPrice : u64= 0;
 const ELotteryInProgress : u64 = 1;
@@ -151,7 +151,7 @@ public fun create_lottery(creator: &Owner, name: String, description: String, ti
         creator_commision_percentage: creator.creator_commision_percentage,
         percentage_decimals: creator.decimal,
     });
-    transfer::share_object(lottery);
+    transfer::share_object(lottery); 
 }
 
 public fun buy_ticket(
@@ -256,6 +256,9 @@ public fun get_ticket_price(lottery: &Lottery): u64{
     lottery.ticket_price
 }
 
+public fun get_lottery_winning_ticket(lottery: &Lottery): Option<ID>{
+    lottery.winner
+}
 
 fun get_percent(amount: u64, percent: u64, decimals: u64): u64 {
     let scaled_percent = percent * pow(10, decimals);
