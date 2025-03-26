@@ -10,9 +10,9 @@ use sui::{
     random::{Random, new_generator}, 
     table::{Self, Table}, 
     event, 
-    package::{Self, Publisher}
+    package::{Self, Publisher},
 };
-use std::string::String;
+use std::string::String; 
 // use std::debug;
 
 const EInvalidPrice : u64= 0;
@@ -94,6 +94,22 @@ public struct LotteryWinnerEvent has copy, drop{
 public struct EditedCommissionEvent has copy, drop{
     owner_commision_percentage: u8,
     creator_commision_percentage: u8,
+}
+
+public struct PriceWithdrawEvent has copy, drop{
+    id: ID,
+    price: u64,
+    account: address,
+}
+
+public struct CommissionWithdrawEvent has copy, drop{
+    id: ID,
+    price: u64,
+    account: address,
+}
+
+public struct OwnerCommissionWithdrawEvent has copy, drop{
+    price: u64,
 }
 
 fun init(otw: DECENTRALIZED_LOTTERY, ctx: &mut TxContext){
@@ -229,6 +245,11 @@ public fun withdraw_price(lottery: &mut Lottery, lticket: &Ticket, clock: &Clock
     assert!(lottery.price_pool.value() > 0, ENoPricePool);
     let price_balance = lottery.price_pool.withdraw_all();
     let price_coin = price_balance.into_coin(ctx);
+    event::emit(PriceWithdrawEvent{
+        id: *lottery.id.as_inner(),
+        price: price_coin.value(),
+        account: ctx.sender(),
+    });
     transfer::public_transfer(price_coin, ctx.sender());
 }
 
@@ -240,6 +261,11 @@ public fun withdraw_commission(lottery: &mut Lottery, clock: &Clock, ctx: &mut T
     assert!(lottery.created_by == ctx.sender(), ENotLotteryCreator);
     let commission_balance = lottery.creator_commission.withdraw_all();
     let commission_coin = commission_balance.into_coin(ctx);
+    event::emit(CommissionWithdrawEvent{
+        id: *lottery.id.as_inner(),
+        price: commission_coin.value(),
+        account: ctx.sender(),
+    });
     transfer::public_transfer(commission_coin, ctx.sender());
 }
 
@@ -249,6 +275,9 @@ public fun withdraw_owner_commission(owner: &mut Owner, cap : &Publisher, ctx: &
     assert!(owner.commissions.value() > 0, ENoCommisionPool);
     let commission_balance = owner.commissions.withdraw_all();
     let commission_coin = commission_balance.into_coin(ctx);
+    event::emit(OwnerCommissionWithdrawEvent{
+        price: commission_coin.value(),
+    });
     transfer::public_transfer(commission_coin, ctx.sender());
 }
 

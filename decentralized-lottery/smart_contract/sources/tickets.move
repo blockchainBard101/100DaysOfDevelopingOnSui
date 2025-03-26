@@ -21,7 +21,7 @@ public struct Ticket has key, store {
 public struct TicketMinted has copy, drop {
     object_id: ID,         
     owner: address,   
-    price: u64,    
+    price: u64,
     name: String,  
     ticket_number: u64,
     lottery_id: ID         
