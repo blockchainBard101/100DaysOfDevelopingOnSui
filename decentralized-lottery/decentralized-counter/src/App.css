@@ -1,0 +1,380 @@
+:root {
+  --primary-color: #6200ea;
+  --primary-light: #9d46ff;
+  --primary-dark: #0a00b6;
+  --secondary-color: #ff9100;
+  --text-color: #333333;
+  --background-color: #f5f5f5;
+  --card-color: #ffffff;
+  --border-color: #e0e0e0;
+  --success-color: #4caf50;
+  --warning-color: #ff9800;
+  --error-color: #f44336;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  background-color: var(--background-color);
+  color: var(--text-color);
+  line-height: 1.6;
+}
+
+.app-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+/* Header */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.logo h1 {
+  color: var(--primary-color);
+  font-size: 24px;
+}
+
+.wallet-info {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.account-info {
+  display: flex;
+  align-items: center;
+}
+
+.address {
+  background-color: var(--primary-light);
+  color: white;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 14px;
+}
+
+/* Connect Wallet */
+.connect-wallet-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 300px;
+  text-align: center;
+  background-color: var(--card-color);
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 30px;
+  margin: 40px auto;
+  max-width: 500px;
+}
+
+.connect-wallet-container h2 {
+  margin-bottom: 20px;
+  color: var(--primary-color);
+}
+
+/* Navigation */
+.navigation {
+  display: flex;
+  margin-bottom: 20px;
+  gap: 10px;
+}
+
+.navigation button {
+  background-color: var(--card-color);
+  border: 1px solid var(--border-color);
+  padding: 10px 15px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.navigation button:hover {
+  background-color: var(--primary-light);
+  color: white;
+  border-color: var(--primary-light);
+}
+
+/* Lottery List */
+.lottery-list {
+  margin-top: 20px;
+}
+
+.lottery-list h2 {
+  margin-bottom: 20px;
+  color: var(--primary-color);
+}
+
+.lottery-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+.lottery-card {
+  background-color: var(--card-color);
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease;
+  cursor: pointer;
+}
+
+.lottery-card:hover {
+  transform: translateY(-5px);
+}
+
+.lottery-image {
+  height: 160px;
+  overflow: hidden;
+}
+
+.lottery-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.lottery-info {
+  padding: 15px;
+}
+
+.lottery-info h3 {
+  margin-bottom: 10px;
+  color: var(--primary-color);
+  font-size: 18px;
+}
+
+.lottery-status {
+  margin-top: 10px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.status {
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.status.upcoming {
+  background-color: var(--primary-light);
+  color: white;
+}
+
+.status.active {
+  background-color: var(--success-color);
+  color: white;
+}
+
+.status.ended {
+  background-color: var(--error-color);
+  color: white;
+}
+
+.loading, .no-lotteries {
+  text-align: center;
+  padding: 40px 0;
+  font-size: 18px;
+  color: var(--text-color);
+}
+
+/* Lottery Creation */
+.lottery-creation {
+  background-color: var(--card-color);
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.lottery-creation h2 {
+  margin-bottom: 20px;
+  color: var(--primary-color);
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: 500;
+}
+
+.form-group input,
+.form-group textarea {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid var(--border-color);
+  border-radius: 5px;
+  font-size: 16px;
+}
+
+.form-group textarea {
+  min-height: 100px;
+  resize: vertical;
+}
+
+button {
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 500;
+  transition: background-color 0.3s ease;
+}
+
+button:hover {
+  background-color: var(--primary-dark);
+}
+
+button:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}
+
+/* Lottery Details */
+.lottery-details {
+  background-color: var(--card-color);
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.back-button {
+  background-color: transparent;
+  color: var(--primary-color);
+  border: 1px solid var(--primary-color);
+  padding: 8px 15px;
+  margin-bottom: 20px;
+}
+
+.back-button:hover {
+  background-color: var(--primary-color);
+  color: white;
+}
+
+.lottery-header {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 30px;
+  margin-bottom: 30px;
+}
+
+.lottery-image-large {
+  height: 250px;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.lottery-image-large img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.lottery-info-large h2 {
+  margin-bottom: 15px;
+  color: var(--primary-color);
+}
+
+.lottery-info-large p {
+  margin-bottom: 10px;
+}
+
+.buy-ticket-button {
+  margin-top: 15px;
+  background-color: var(--secondary-color);
+}
+
+.buy-ticket-button:hover {
+  background-color: #e68300;
+}
+
+.determine-winner-button {
+  margin-top: 15px;
+  background-color: var(--primary-color);
+}
+
+.winner-info {
+  margin-top: 20px;
+  padding: 15px;
+  background-color: #f0f0f0;
+  border-radius: 10px;
+}
+
+.winner-info h3 {
+  color: var(--success-color);
+  margin-bottom: 10px;
+}
+
+.withdraw-prize-button {
+  margin-top: 15px;
+  background-color: var(--success-color);
+}
+
+.withdraw-prize-button:hover {
+  background-color: #388e3c;
+}
+
+.withdraw-commission-button {
+  margin-top: 15px;
+  background-color: var(--primary-color);
+  margin-left: 10px;
+}
+
+.lottery-tickets {
+  margin-top: 30px;
+}
+
+.lottery-tickets h3 {
+  margin-bottom: 15px;
+  color: var(--primary-color);
+}
+
+.ticket-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 15px;
+}
+
+.ticket-card {
+  background-color: #f0f0f0;
+  padding: 15px;
+  border-radius: 8px;
+  border-left: 4px solid var(--primary-color);
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+  .lottery-header {
+    grid-template-columns: 1fr;
+  }
+  
+  .lottery-image-large {
+    height: 200px;
+  }
+  
+  .ticket-grid {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  }
+}
