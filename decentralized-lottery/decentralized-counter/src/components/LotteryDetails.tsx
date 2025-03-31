@@ -48,73 +48,103 @@ const LotteryDetails: React.FC<LotteryDetailsProps> = ({ lottery, onBack }) => {
   const isEnded = Date.now() > lottery.endTime;
   const isCreator = account?.address === lottery.createdBy;
   
+  // useEffect(() => {
+  //   const fetchLotteryData = async () => {
+      // try {
+      //   const provider = new useSuiProvider();
+        
+      //   // Fetch tickets for this lottery
+      //   const ticketEvents = await provider.queryEvents({
+      //     query: {
+      //       MoveEventType: `${PACKAGE_ID}::decentralized_lottery::LotteryTicketBuyEvent`,
+      //       MoveEventField: {
+      //         path: "/id",
+      //         value: lottery.id
+      //       }
+      //     },
+      //     limit: 100,
+      //   });
+        
+      //   const fetchedTickets = ticketEvents.data.map(event => {
+      //     const parsedEvent = event.parsedJson as any;
+      //     return {
+      //       id: parsedEvent.id,
+      //       number: parsedEvent.ticket_number,
+      //       boughtAt: parsedEvent.bought_at,
+      //     };
+      //   });
+        
+      //   setTickets(fetchedTickets);
+        
+      //   if (account) {
+      //     // Filter user's tickets
+      //     // This is simplified - in reality you'd need to query tickets by owner
+      //     // which requires additional indexing or querying the contract objects
+      //     setUserTickets(fetchedTickets.filter(ticket => {
+      //       // Placeholder for ticket ownership check
+      //       return false; // Replace with actual logic
+      //     }));
+      //   }
+        
+      //   // Check if winner has been determined
+      //   const winnerEvents = await provider.queryEvents({
+      //     query: {
+      //       MoveEventType: `${PACKAGE_ID}::decentralized_lottery::LotteryWinnerEvent`,
+      //       MoveEventField: {
+      //         path: "/id",
+      //         value: lottery.id
+      //       }
+      //     },
+      //     limit: 1,
+      //   });
+        
+      //   if (winnerEvents.data.length > 0) {
+      //     const winnerEvent = winnerEvents.data[0].parsedJson as any;
+      //     setWinner({
+      //       id: winnerEvent.id,
+      //       winner: winnerEvent.winner,
+      //       winningPrice: winnerEvent.winning_price / 1_000_000_000, // Convert MIST to SUI
+      //     });
+      //   }
+      // } catch (error) {
+      //   console.error('Error fetching lottery data:', error);
+      // } finally {
+      //   setLoading(false);
+      // }
+    // };
+    
+  //   fetchLotteryData();
+  // }, [lottery, account]);
+
   useEffect(() => {
     const fetchLotteryData = async () => {
-      try {
-        const provider = new useSuiProvider();
-        
-        // Fetch tickets for this lottery
-        const ticketEvents = await provider.queryEvents({
-          query: {
-            MoveEventType: `${PACKAGE_ID}::decentralized_lottery::LotteryTicketBuyEvent`,
-            MoveEventField: {
-              path: "/id",
-              value: lottery.id
-            }
-          },
-          limit: 100,
-        });
-        
-        const fetchedTickets = ticketEvents.data.map(event => {
-          const parsedEvent = event.parsedJson as any;
-          return {
-            id: parsedEvent.id,
-            number: parsedEvent.ticket_number,
-            boughtAt: parsedEvent.bought_at,
-          };
-        });
-        
+        // Simulating fetched ticket data
+        const fetchedTickets = [
+            { id: 'ticket_001', number: 1, boughtAt: Date.now() - 50000 },
+            { id: 'ticket_002', number: 2, boughtAt: Date.now() - 40000 },
+            { id: 'ticket_003', number: 3, boughtAt: Date.now() - 30000 },
+        ];
         setTickets(fetchedTickets);
-        
+
         if (account) {
-          // Filter user's tickets
-          // This is simplified - in reality you'd need to query tickets by owner
-          // which requires additional indexing or querying the contract objects
-          setUserTickets(fetchedTickets.filter(ticket => {
-            // Placeholder for ticket ownership check
-            return false; // Replace with actual logic
-          }));
+            // Simulate filtering user-owned tickets (assuming user owns ticket_002)
+            setUserTickets(fetchedTickets.filter(ticket => ticket.id === 'ticket_002'));
         }
-        
-        // Check if winner has been determined
-        const winnerEvents = await provider.queryEvents({
-          query: {
-            MoveEventType: `${PACKAGE_ID}::decentralized_lottery::LotteryWinnerEvent`,
-            MoveEventField: {
-              path: "/id",
-              value: lottery.id
-            }
-          },
-          limit: 1,
-        });
-        
-        if (winnerEvents.data.length > 0) {
-          const winnerEvent = winnerEvents.data[0].parsedJson as any;
-          setWinner({
-            id: winnerEvent.id,
-            winner: winnerEvent.winner,
-            winningPrice: winnerEvent.winning_price / 1_000_000_000, // Convert MIST to SUI
-          });
-        }
-      } catch (error) {
-        console.error('Error fetching lottery data:', error);
-      } finally {
+
+        // Simulating fetched winner data
+        // const dummyWinner = {
+        //     id: lottery.id,
+        //     winner: '0xabcdef123456789',
+        //     winningPrice: fetchedTickets.length * lottery.price * 0.9, // Simulate 90% of the prize pool
+        // };
+        // setWinner(dummyWinner);
+
         setLoading(false);
-      }
     };
-    
+
     fetchLotteryData();
-  }, [lottery, account]);
+}, [lottery, account]);
+
 
   const handleBuyTicket = async () => {
     if (!account) return;
@@ -289,7 +319,7 @@ const LotteryDetails: React.FC<LotteryDetailsProps> = ({ lottery, onBack }) => {
       
       // Execute transaction
       const result = await wallet.signAndExecuteTransaction({
-        transactionBlock: tx,
+        transaction: tx,
       });
       
       console.log('Withdrew commission:', result);
@@ -309,7 +339,7 @@ const LotteryDetails: React.FC<LotteryDetailsProps> = ({ lottery, onBack }) => {
 
   return (
     <div className="lottery-details">
-      <button className="back-button" onClick={onBack}>← Back to Lotteries</button>
+      {/* <button className="back-button" onClick={onBack}>← Back to Lotteries</button> */}
       
       <div className="lottery-header">
         <div className="lottery-image-large">

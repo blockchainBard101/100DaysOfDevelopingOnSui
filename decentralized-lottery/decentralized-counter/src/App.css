@@ -1,21 +1,75 @@
+/* CSS Variables */
 :root {
+  /* Color Palette */
   --primary-color: #6200ea;
   --primary-light: #9d46ff;
   --primary-dark: #0a00b6;
   --secondary-color: #ff9100;
+  --secondary-dark: #e68300;
+  
+  /* Neutral Colors */
   --text-color: #333333;
+  --text-light: #ffffff;
   --background-color: #f5f5f5;
   --card-color: #ffffff;
-  --border-color: #e0e0e0;
+  --border-color: #ccc;
+  --light-background: #f0f0f0;
+  
+  /* Status Colors */
   --success-color: #4caf50;
+  --success-dark: #388e3c;
   --warning-color: #ff9800;
   --error-color: #f44336;
+  --disabled-color: #cccccc;
+  
+  /* Spacing */
+  --spacing-xs: 4px;
+  --spacing-sm: 12px;
+  --spacing-md: 20px;
+  --spacing-lg: 20px;
+  --spacing-xl: 30px;
+  
+  /* Border Radius */
+  --border-radius-sm: 4px;
+  --border-radius-md: 8px;
+  --border-radius-lg: 8px;
+  --border-radius-xl: 10px;
+  --border-radius-round: 20px;
+  
+  /* Box Shadow */
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 4px 12px rgba(0, 0, 0, 0.15);
+  
+  /* Transitions */
+  --transition-fast: 0.2s ease;
+  --transition-normal: 0.3s ease;
+
+  /* --font-weight-medium: 500;
+  --letter-spacing-wide: 0.05em;
+  --transition-normal: 0.3s ease-in-out;
+  --primary-dark: #333;
+  --primary-color: #007bff;
+  --input-background: #f8f9fa;
+  --input-focus-background: #ffffff;
+  --input-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+  --input-focus-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+  --text-color: #222; */
+
+  
 }
 
+/* Reset & Base Styles */
 * {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow-x: hidden;
 }
 
 body {
@@ -23,12 +77,179 @@ body {
   background-color: var(--background-color);
   color: var(--text-color);
   line-height: 1.6;
+  font-size: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .app-container {
   max-width: 1200px;
+  width: 100%;
   margin: 0 auto;
-  padding: 20px;
+  padding: var(--spacing-lg);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Typography */
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 600;
+  line-height: 1.3;
+  color: var(--primary-color);
+  text-align: center;
+}
+
+h1 {
+  font-size: 24px;
+}
+
+h2 {
+  font-size: 20px;
+  margin-bottom: var(--spacing-lg);
+}
+
+h2::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60px;
+  height: 3px;
+  background: linear-gradient(90deg, var(--primary-color), var(--primary-light));
+  border-radius: 3px;
+}
+
+h3 {
+  font-size: 20px;
+  margin-bottom: var(--spacing-md);
+  color: var(--primary-dark);
+}
+
+.section-header {
+  width: 100%;
+  text-align: center;
+  margin-bottom: var(--spacing-xl);
+  position: relative;
+}
+
+.section-header h2 {
+  display: inline-block;
+  background-color: var(--background-color);
+  padding: 0 var(--spacing-lg);
+  position: relative;
+  z-index: 1;
+}
+
+.section-header::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background-color: var(--border-color);
+  z-index: 0;
+}
+
+p {
+  margin-bottom: var(--spacing-sm);
+  text-align: center;
+}
+
+/* Button Styles */
+button {
+  background-color: var(--primary-color);
+  color: var(--text-light);
+  border: none;
+  padding: 12px var(--spacing-lg);
+  border-radius: var(--border-radius-md);
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 500;
+  transition: background-color var(--transition-normal);
+  align-self: center;
+}
+
+button:hover {
+  background-color: var(--primary-dark);
+}
+
+button:disabled {
+  background-color: var(--disabled-color);
+  cursor: not-allowed;
+}
+
+.btn-secondary {
+  background-color: var(--secondary-color);
+}
+
+.btn-secondary:hover {
+  background-color: var(--secondary-dark);
+}
+
+.btn-success {
+  background-color: var(--success-color);
+}
+
+.btn-success:hover {
+  background-color: var(--success-dark);
+}
+
+.btn-outline {
+  background-color: transparent;
+  color: var(--primary-color);
+  border: 1px solid var(--primary-color);
+}
+
+.btn-outline:hover {
+  background-color: var(--primary-color);
+  color: var(--text-light);
+}
+
+/* Layout Components */
+.card {
+  background-color: var(--card-color);
+  border-radius: var(--border-radius-xl);
+  box-shadow: var(--shadow-md);
+  padding: var(--spacing-lg);
+  margin-bottom: var(--spacing-lg);
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.grid {
+  display: grid;
+  gap: var(--spacing-lg);
+  width: 100%;
+  justify-content: center;
+}
+
+.flex {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.space-between {
+  justify-content: space-between;
+  width: 100%;
+}
+
+.align-center {
+  align-items: center;
+}
+
+.gap-md {
+  gap: var(--spacing-md);
+}
+
+.gap-lg {
+  gap: var(--spacing-lg);
 }
 
 /* Header */
@@ -36,33 +257,35 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 30px;
-  padding-bottom: 20px;
+  margin-bottom: var(--spacing-xl);
+  padding-bottom: var(--spacing-lg);
   border-bottom: 1px solid var(--border-color);
+  width: 100%;
+  text-align: center;
+}
+
+.logo {
+  margin: 0 auto;
 }
 
 .logo h1 {
   color: var(--primary-color);
-  font-size: 24px;
 }
 
 .wallet-info {
   display: flex;
   align-items: center;
-  gap: 15px;
-}
-
-.account-info {
-  display: flex;
-  align-items: center;
+  gap: var(--spacing-md);
+  margin: 0 auto;
 }
 
 .address {
   background-color: var(--primary-light);
-  color: white;
+  color: var(--text-light);
   padding: 6px 12px;
-  border-radius: 20px;
+  border-radius: var(--border-radius-round);
   font-size: 14px;
+  text-align: center;
 }
 
 /* Connect Wallet */
@@ -73,217 +296,518 @@ body {
   justify-content: center;
   height: 300px;
   text-align: center;
-  background-color: var(--card-color);
-  border-radius: 10px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  padding: 30px;
   margin: 40px auto;
   max-width: 500px;
-}
-
-.connect-wallet-container h2 {
-  margin-bottom: 20px;
-  color: var(--primary-color);
+  width: 100%;
 }
 
 /* Navigation */
 .navigation {
   display: flex;
-  margin-bottom: 20px;
-  gap: 10px;
+  margin-bottom: var(--spacing-lg);
+  gap: var(--spacing-sm);
+  justify-content: center;
+  width: 100%;
 }
 
 .navigation button {
-  background-color: var(--card-color);
-  border: 1px solid var(--border-color);
-  padding: 10px 15px;
-  border-radius: 5px;
-  cursor: pointer;
+  background-color: var(--primary-color); /* Changed to primary color */
+  border: 1px solid var(--primary-dark); /* Darker border for contrast */
+  padding: var(--spacing-sm) var(--spacing-md);
   font-weight: 500;
-  transition: all 0.3s ease;
+  color: var(--text-light); /* Ensuring text is readable */
 }
 
-.navigation button:hover {
-  background-color: var(--primary-light);
-  color: white;
-  border-color: var(--primary-light);
+.navigation button:hover, 
+.navigation button.active {
+  background-color: var(--accent-color); /* Different hover color */
+  color: var(--text-dark);
+  border-color: var(--accent-dark);
 }
 
 /* Lottery List */
 .lottery-list {
-  margin-top: 20px;
-}
-
-.lottery-list h2 {
-  margin-bottom: 20px;
-  color: var(--primary-color);
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: var(--spacing-md);
 }
 
 .lottery-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: var(--spacing-md);
+  width: 100%;
+  max-width: 800px;
+  margin-top: var(--spacing-md);
 }
 
 .lottery-card {
-  background-color: var(--card-color);
-  border-radius: 10px;
+  border-radius: var(--border-radius-xl);
   overflow: hidden;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  transition: transform 0.3s ease;
+  box-shadow: var(--shadow-md);
+  transition: transform var(--transition-normal), box-shadow var(--transition-normal);
   cursor: pointer;
+  background-color: var(--card-color);
+  height: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .lottery-card:hover {
-  transform: translateY(-5px);
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-lg);
 }
 
 .lottery-image {
-  height: 160px;
+  height: 80px;
   overflow: hidden;
+  width: 100%;
+  border-bottom: 1px solid var(--border-color);
 }
 
 .lottery-image img {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  transition: transform var(--transition-normal);
+}
+
+.lottery-card:hover .lottery-image img {
+  transform: scale(1.03);
 }
 
 .lottery-info {
-  padding: 15px;
+  padding: var(--spacing-sm);
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  width: 100%;
 }
 
 .lottery-info h3 {
-  margin-bottom: 10px;
-  color: var(--primary-color);
-  font-size: 18px;
-}
-
-.lottery-status {
-  margin-top: 10px;
-  display: flex;
-  justify-content: flex-end;
-}
-
-.status {
-  padding: 4px 8px;
-  border-radius: 4px;
+  margin-bottom: var(--spacing-sm);
   font-size: 12px;
   font-weight: 500;
 }
 
+.lottery-status {
+  margin-top: auto;
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+.status {
+  padding: 3px 6px;
+  border-radius: var(--border-radius-sm);
+  font-size: 10px;
+  font-weight: 500;
+  text-align: center;
+  text-transform: uppercase;
+}
+
 .status.upcoming {
   background-color: var(--primary-light);
-  color: white;
+  color: var(--text-light);
 }
 
 .status.active {
   background-color: var(--success-color);
-  color: white;
+  color: var(--text-light);
 }
 
 .status.ended {
   background-color: var(--error-color);
-  color: white;
+  color: var(--text-light);
 }
 
 .loading, .no-lotteries {
   text-align: center;
-  padding: 40px 0;
-  font-size: 18px;
+  padding: 20px 0;
+  font-size: 14px;
   color: var(--text-color);
+  width: 100%;
+  font-weight: 500;
 }
 
-/* Lottery Creation */
-.lottery-creation {
-  background-color: var(--card-color);
-  border-radius: 10px;
-  padding: 20px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
 
-.lottery-creation h2 {
-  margin-bottom: 20px;
-  color: var(--primary-color);
-}
-
+/* Forms */
 .form-group {
-  margin-bottom: 20px;
+  margin-bottom: var(--spacing-lg);
+  width: 100%;
+  max-width: 600px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transition: all var(--transition-normal);
 }
 
 .form-group label {
   display: block;
-  margin-bottom: 5px;
-  font-weight: 500;
+  margin-bottom: var(--spacing-xs);
+  font-weight: var(--font-weight-medium);
+  text-align: center;
+  color: var(--primary-dark);
+  font-size: 14px;
+  letter-spacing: var(--letter-spacing-wide);
+  text-transform: uppercase;
+  transition: color var(--transition-normal);
 }
 
 .form-group input,
-.form-group textarea {
+.form-group textarea,
+.form-group select {
   width: 100%;
-  padding: 10px;
+  padding: 12px var(--spacing-md);
+  background-color: var(--input-background);
   border: 1px solid var(--border-color);
-  border-radius: 5px;
+  border-radius: var(--border-radius-md);
   font-size: 16px;
+  transition: all var(--transition-normal);
+  box-shadow: var(--input-shadow);
+  color: var(--text-color);
+}
+
+.form-group input::placeholder,
+.form-group textarea::placeholder {
+  color: #999999;
+  font-style: italic;
+  transition: color var(--transition-normal);
+}
+
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  background-color: var(--input-focus-background);
+  box-shadow: var(--input-focus-shadow);
 }
 
 .form-group textarea {
-  min-height: 100px;
+  min-height: 120px;
   resize: vertical;
+  line-height: 1.6;
 }
 
-button {
-  background-color: var(--primary-color);
+.input-container {
+  position: relative;
+}
+
+.input-icon {
+  position: absolute;
+  left: var(--spacing-sm);
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--primary-color);
+}
+
+.input-with-icon {
+  padding-left: 40px;
+}
+
+.input-error {
+  border-color: var(--error-color) !important;
+}
+
+.error-message {
+  color: var(--error-color);
+  font-size: 12px;
+  margin-top: 5px;
+  text-align: left;
+}
+
+.form-horizontal {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+}
+
+.form-horizontal label {
+  margin-bottom: 0;
+  width: 120px;
+  text-align: right;
+}
+
+.form-horizontal .input-container {
+  flex: 1;
+}
+
+.form-floating {
+  position: relative;
+}
+
+.form-floating input,
+.form-floating textarea {
+  height: 56px;
+  padding: 24px var(--spacing-md) 8px;
+}
+
+.form-floating textarea {
+  min-height: 120px;
+}
+
+.form-floating label {
+  position: absolute;
+  top: 0;
+  left: var(--spacing-md);
+  height: 100%;
+  padding: 16px 0 0 0;
+  pointer-events: none;
+  transform-origin: 0 0;
+  transition: all var(--transition-fast);
+  color: #999999;
+  text-align: left;
+  text-transform: none;
+  letter-spacing: normal;
+  font-weight: normal;
+}
+
+.form-floating input:focus ~ label,
+.form-floating input:not(:placeholder-shown) ~ label,
+.form-floating textarea:focus ~ label,
+.form-floating textarea:not(:placeholder-shown) ~ label {
+  transform: translateY(-12px) scale(0.85);
+  color: var(--primary-color);
+}
+
+.input-group {
+  display: flex;
+  width: 100%;
+}
+
+.input-group input {
+  border-radius: 0;
+  border-right: none;
+}
+
+.input-group input:first-child {
+  border-top-left-radius: var(--border-radius-md);
+  border-bottom-left-radius: var(--border-radius-md);
+}
+
+.input-group-append {
+  display: flex;
+  align-items: center;
+  padding: 0 var(--spacing-md);
+  background-color: var(--primary-light);
   color: white;
-  border: none;
-  padding: 12px 20px;
-  border-radius: 5px;
+  border-top-right-radius: var(--border-radius-md);
+  border-bottom-right-radius: var(--border-radius-md);
+  font-weight: var(--font-weight-medium);
+}
+
+.search-input {
+  position: relative;
+  max-width: 400px;
+  margin: 0 auto var(--spacing-lg);
+}
+
+.search-input input {
+  width: 100%;
+  padding: 12px var(--spacing-md) 12px 40px;
+  border-radius: 25px;
+  border: 1px solid var(--border-color);
+  background-color: var(--card-color);
+  transition: all var(--transition-normal);
+}
+
+.search-input input:focus {
+  box-shadow: var(--input-focus-shadow);
+  border-color: var(--primary-color);
+}
+
+.search-icon {
+  position: absolute;
+  left: var(--spacing-md);
+  top: 50%;
+  transform: translateY(-50%);
+  color: #999999;
+}
+
+select {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%236200ea%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px top 50%;
+  background-size: 12px auto;
+  padding-right: 40px;
+}
+
+.checkbox-container,
+.radio-container {
+  display: flex;
+  align-items: center;
   cursor: pointer;
-  font-size: 16px;
-  font-weight: 500;
-  transition: background-color 0.3s ease;
+  margin-bottom: var(--spacing-sm);
 }
 
-button:hover {
-  background-color: var(--primary-dark);
+.checkbox-input,
+.radio-input {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+  height: 0;
+  width: 0;
 }
 
-button:disabled {
-  background-color: #cccccc;
-  cursor: not-allowed;
+.checkbox-custom,
+.radio-custom {
+  position: relative;
+  height: 20px;
+  width: 20px;
+  background-color: var(--input-background);
+  border: 1px solid var(--border-color);
+  margin-right: var(--spacing-sm);
+}
+
+.checkbox-custom {
+  border-radius: 3px;
+}
+
+.radio-custom {
+  border-radius: 50%;
+}
+
+.checkbox-input:checked ~ .checkbox-custom:after {
+  content: '';
+  position: absolute;
+  display: block;
+  left: 6px;
+  top: 2px;
+  width: 5px;
+  height: 10px;
+  border: solid var(--primary-color);
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+.radio-input:checked ~ .radio-custom:after {
+  content: '';
+  position: absolute;
+  display: block;
+  top: 5px;
+  left: 5px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--primary-color);
+}
+
+.checkbox-input:focus ~ .checkbox-custom,
+.radio-input:focus ~ .radio-custom {
+  box-shadow: var(--input-focus-shadow);
+  border-color: var(--primary-color);
+}
+
+/* Header */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-xl);
+  padding: var(--spacing-lg) 0;
+  border-bottom: 1px solid var(--border-color);
+  width: 100%;
+  text-align: center;
+  position: relative;
+}
+
+.header::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100px;
+  height: 3px;
+  background: linear-gradient(90deg, var(--primary-color), var(--primary-light));
+  border-radius: 3px;
+}
+
+.logo {
+  margin: 0 auto;
+  padding: var(--spacing-xs);
+  background-color: var(--background-color);
+  position: relative;
+  z-index: 1;
+}
+
+.logo h1 {
+  margin-bottom: 0;
+  font-size: 28px;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.wallet-info {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  margin: 0 auto;
+  padding: var(--spacing-xs) var(--spacing-md);
+  background-color: var(--light-background);
+  border-radius: var(--border-radius-round);
+  box-shadow: var(--shadow-sm);
+}
+
+
+.address {
+  background-color: var(--primary-light);
+  color: var(--text-light);
+  padding: 8px 16px;
+  border-radius: var(--border-radius-round);
+  font-size: 14px;
+  font-weight: var(--font-weight-medium);
+  letter-spacing: 0.5px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.address::before {
+  content: '•';
+  color: var(--text-light);
+  font-size: 20px;
+  margin-right: 5px;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% { opacity: 0.5; }
+  50% { opacity: 1; }
+  100% { opacity: 0.5; }
 }
 
 /* Lottery Details */
 .lottery-details {
-  background-color: var(--card-color);
-  border-radius: 10px;
-  padding: 20px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-.back-button {
-  background-color: transparent;
-  color: var(--primary-color);
-  border: 1px solid var(--primary-color);
-  padding: 8px 15px;
-  margin-bottom: 20px;
-}
-
-.back-button:hover {
-  background-color: var(--primary-color);
-  color: white;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .lottery-header {
   display: grid;
   grid-template-columns: 1fr 2fr;
-  gap: 30px;
-  margin-bottom: 30px;
+  gap: var(--spacing-xl);
+  margin-bottom: var(--spacing-xl);
+  width: 100%;
 }
 
 .lottery-image-large {
-  height: 250px;
-  border-radius: 10px;
+  height: 260px;
+  border-radius: var(--border-radius-xl);
   overflow: hidden;
+  width: 100%;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
 }
 
 .lottery-image-large img {
@@ -292,79 +816,67 @@ button:disabled {
   object-fit: cover;
 }
 
+.lottery-info-large {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
 .lottery-info-large h2 {
-  margin-bottom: 15px;
-  color: var(--primary-color);
-}
-
-.lottery-info-large p {
-  margin-bottom: 10px;
-}
-
-.buy-ticket-button {
-  margin-top: 15px;
-  background-color: var(--secondary-color);
-}
-
-.buy-ticket-button:hover {
-  background-color: #e68300;
-}
-
-.determine-winner-button {
-  margin-top: 15px;
-  background-color: var(--primary-color);
+  margin-bottom: var(--spacing-md);
 }
 
 .winner-info {
-  margin-top: 20px;
-  padding: 15px;
-  background-color: #f0f0f0;
-  border-radius: 10px;
+  margin-top: var(--spacing-lg);
+  padding: var(--spacing-md);
+  background-color: var(--light-background);
+  border-radius: var(--border-radius-xl);
+  text-align: center;
+  width: 100%;
 }
 
 .winner-info h3 {
   color: var(--success-color);
-  margin-bottom: 10px;
-}
-
-.withdraw-prize-button {
-  margin-top: 15px;
-  background-color: var(--success-color);
-}
-
-.withdraw-prize-button:hover {
-  background-color: #388e3c;
-}
-
-.withdraw-commission-button {
-  margin-top: 15px;
-  background-color: var(--primary-color);
-  margin-left: 10px;
 }
 
 .lottery-tickets {
-  margin-top: 30px;
-}
-
-.lottery-tickets h3 {
-  margin-bottom: 15px;
-  color: var(--primary-color);
+  margin-top: var(--spacing-xl);
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .ticket-grid {
-  display: grid;
   grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 15px;
+  gap: var(--spacing-md);
+  width: 100%;
 }
 
 .ticket-card {
-  background-color: #f0f0f0;
-  padding: 15px;
-  border-radius: 8px;
+  background-color: var(--light-background);
+  padding: var(--spacing-md);
+  border-radius: var(--border-radius-lg);
   border-left: 4px solid var(--primary-color);
+  text-align: center;
+}
+
+/* Action Buttons */
+.action-buttons {
+  display: flex;
+  gap: var(--spacing-sm);
+  margin-top: var(--spacing-md);
+  flex-wrap: wrap;
+  justify-content: center;
 }
 
 /* Responsive styles */
+@media (max-width: 992px) {
+  .lottery-grid {
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  }
+}
+
 @media (max-width: 768px) {
   .lottery-header {
     grid-template-columns: 1fr;
@@ -374,7 +886,65 @@ button:disabled {
     height: 200px;
   }
   
-  .ticket-grid {
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  .lottery-grid {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .lottery-card {
+    width: 100%;
+    max-width: 400px;
+  }
+  .header {
+    flex-direction: column;
+    gap: var(--spacing-md);
+    align-items: center;
+  }
+  
+  .wallet-info {
+    width: 100%;
+    justify-content: center;
+  }
+  .form-group {
+    max-width: 100%;
+  }
+
+  .form-group label {
+    font-size: 12px;
+  }
+
+  .form-group input,
+  .form-group textarea,
+  .form-group select {
+    font-size: 14px;
+    padding: 10px;
+  }
+
+  
+
+  .lottery-info h3 {
+    font-size: 10px;
+  }
+
+  .status {
+    font-size: 8px;
+  }
+}
+
+@media (max-width: 480px) {
+  .lottery-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .app-container {
+    padding: var(--spacing-sm);
+  }
+  
+  h1 {
+    font-size: 20px;
+  }
+  
+  h2 {
+    font-size: 18px;
   }
 }

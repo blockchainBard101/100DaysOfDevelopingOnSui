@@ -1,7 +1,7 @@
 import { ConnectButton, useWallet } from "@suiet/wallet-kit";
 
 const Header = () => {
-  const { connected, account } = useWallet();
+  // const { connected, account } = useWallet();
   
   return (
     <header className="header">
@@ -9,11 +9,11 @@ const Header = () => {
         <h1>Decentralized Lottery</h1>
       </div>
       <div className="wallet-info">
-        {connected && account && (
+        {/* {connected && account && (
           <div className="account-info">
             <span className="address">{`${account.address.substring(0, 6)}...${account.address.substring(account.address.length - 4)}`}</span>
           </div>
-        )}
+        )} */}
         <ConnectButton />
       </div>
     </header>

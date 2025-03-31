@@ -1,0 +1,46 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Lottery {
+  id                     String  @id @default(uuid())
+  name                   String
+  description            String
+  ticketPrice            BigInt
+  startTime             DateTime
+  endTime               DateTime
+  creatorAddress        String
+  ticketUrl             String
+  createdAt             DateTime @default(now())
+  winnerId              String?  // Stores the winning ticket ID
+  tickets               Ticket[]
+}
+
+model Ticket {
+  id         String  @id @default(uuid())
+  lotteryId  String
+  lottery    Lottery @relation(fields: [lotteryId], references: [id])
+  buyer      String  // Address of the ticket buyer
+  ticketNumber Int
+  boughtAt   DateTime @default(now())
+}
+
+model Commission {
+  id           String  @id @default(uuid())
+  lotteryId    String  @unique
+  ownerCommission  BigInt
+  creatorCommission BigInt
+  collected      Boolean @default(false)
+}
+

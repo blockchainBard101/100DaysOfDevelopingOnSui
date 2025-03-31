@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useWallet } from "@suiet/wallet-kit";
-import { JsonRpcProvider} from '@mysten/sui';
+// import { JsonRpcProvider} from '@mysten/sui';
 import { Transaction } from '@mysten/sui/transactions';
 
 const PACKAGE_ID = 'YOUR_PACKAGE_ID';
