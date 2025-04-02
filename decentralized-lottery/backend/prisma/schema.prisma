@@ -14,7 +14,7 @@ datasource db {
 }
 
 model Lottery {
-  id                     String  @id @default(uuid())
+  id                     String  @id
   name                   String
   description            String
   ticketPrice            BigInt
@@ -22,18 +22,19 @@ model Lottery {
   endTime               DateTime
   creatorAddress        String
   ticketUrl             String
-  createdAt             DateTime @default(now())
+  createdAt             DateTime
+  pricePool             Float
   winnerId              String?  // Stores the winning ticket ID
   tickets               Ticket[]
 }
 
 model Ticket {
-  id         String  @id @default(uuid())
+  id         String  @id
   lotteryId  String
   lottery    Lottery @relation(fields: [lotteryId], references: [id])
-  buyer      String  // Address of the ticket buyer
+  buyer      String  
   ticketNumber Int
-  boughtAt   DateTime @default(now())
+  boughtAt   DateTime
 }
 
 model Commission {

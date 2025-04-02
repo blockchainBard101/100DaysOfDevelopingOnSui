@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useWallet } from '@suiet/wallet-kit';
 import { Transaction } from '@mysten/sui/transactions';
-
-const PACKAGE_ID = 'YOUR_PACKAGE_ID';
-const OWNER_OBJECT_ID = 'YOUR_OWNER_OBJECT_ID';
+import { PACKAGE_ID, OWNER_OBJECT_ID, suiClient } from '../utils';
+import axios from 'axios';
 
 interface Lottery {
   id: string;
@@ -24,13 +23,28 @@ interface LotteryDetailsProps {
 interface Ticket {
   id: string;
   number: number;
-  boughtAt: number;
+  boughtAt: Date;
+  buyer: string
 }
 
 interface Winner {
   id: string;
   winner: string;
   winningPrice: number;
+}
+
+interface TicketEvent {
+  id: string,
+  name: string,
+  price: number,
+  start_time: string,
+  ticket_number: number,
+  end_time: string,
+  bought_at: number,
+  created_at: number,
+  ticket_url: number,
+  lotter_id: string,
+  buyer: string
 }
 
 const LotteryDetails: React.FC<LotteryDetailsProps> = ({ lottery, onBack }) => {
@@ -44,149 +58,138 @@ const LotteryDetails: React.FC<LotteryDetailsProps> = ({ lottery, onBack }) => {
   const [determiningWinner, setDeterminingWinner] = useState(false);
   const [withdrawing, setWithdrawing] = useState(false);
 
-  const isActive = Date.now() >= lottery.startTime && Date.now() <= lottery.endTime;
-  const isEnded = Date.now() > lottery.endTime;
+  const isActive = Date.now() >= new Date(lottery.startTime).getTime() && Date.now() <= new Date(lottery.endTime).getTime();
+  const isEnded = Date.now() > new Date(lottery.endTime).getTime();
   const isCreator = account?.address === lottery.createdBy;
+  const isUpcoming = Date.now() <= new Date(lottery.startTime).getTime()
   
-  // useEffect(() => {
-  //   const fetchLotteryData = async () => {
-      // try {
-      //   const provider = new useSuiProvider();
-        
-      //   // Fetch tickets for this lottery
-      //   const ticketEvents = await provider.queryEvents({
-      //     query: {
-      //       MoveEventType: `${PACKAGE_ID}::decentralized_lottery::LotteryTicketBuyEvent`,
-      //       MoveEventField: {
-      //         path: "/id",
-      //         value: lottery.id
-      //       }
-      //     },
-      //     limit: 100,
-      //   });
-        
-      //   const fetchedTickets = ticketEvents.data.map(event => {
-      //     const parsedEvent = event.parsedJson as any;
-      //     return {
-      //       id: parsedEvent.id,
-      //       number: parsedEvent.ticket_number,
-      //       boughtAt: parsedEvent.bought_at,
-      //     };
-      //   });
-        
-      //   setTickets(fetchedTickets);
-        
-      //   if (account) {
-      //     // Filter user's tickets
-      //     // This is simplified - in reality you'd need to query tickets by owner
-      //     // which requires additional indexing or querying the contract objects
-      //     setUserTickets(fetchedTickets.filter(ticket => {
-      //       // Placeholder for ticket ownership check
-      //       return false; // Replace with actual logic
-      //     }));
-      //   }
-        
-      //   // Check if winner has been determined
-      //   const winnerEvents = await provider.queryEvents({
-      //     query: {
-      //       MoveEventType: `${PACKAGE_ID}::decentralized_lottery::LotteryWinnerEvent`,
-      //       MoveEventField: {
-      //         path: "/id",
-      //         value: lottery.id
-      //       }
-      //     },
-      //     limit: 1,
-      //   });
-        
-      //   if (winnerEvents.data.length > 0) {
-      //     const winnerEvent = winnerEvents.data[0].parsedJson as any;
-      //     setWinner({
-      //       id: winnerEvent.id,
-      //       winner: winnerEvent.winner,
-      //       winningPrice: winnerEvent.winning_price / 1_000_000_000, // Convert MIST to SUI
-      //     });
-      //   }
-      // } catch (error) {
-      //   console.error('Error fetching lottery data:', error);
-      // } finally {
-      //   setLoading(false);
-      // }
-    // };
-    
-  //   fetchLotteryData();
-  // }, [lottery, account]);
-
   useEffect(() => {
     const fetchLotteryData = async () => {
-        // Simulating fetched ticket data
-        const fetchedTickets = [
-            { id: 'ticket_001', number: 1, boughtAt: Date.now() - 50000 },
-            { id: 'ticket_002', number: 2, boughtAt: Date.now() - 40000 },
-            { id: 'ticket_003', number: 3, boughtAt: Date.now() - 30000 },
-        ];
+      try {
+        const response = await axios.get(`http://localhost:3000/lotteries/${lottery.id}/tickets`);
+        const fetchedTickets = response.data.map((ticket : any) => ({
+          id: ticket.id,
+          number: ticket.ticketNumber,
+          boughtAt: ticket.boughtAt,
+          buyer: ticket.buyer,
+        }));
+        
         setTickets(fetchedTickets);
-
+        
         if (account) {
-            // Simulate filtering user-owned tickets (assuming user owns ticket_002)
-            setUserTickets(fetchedTickets.filter(ticket => ticket.id === 'ticket_002'));
+          setUserTickets(fetchedTickets.filter((ticket: any) => ticket.owner === account));
         }
-
-        // Simulating fetched winner data
-        // const dummyWinner = {
-        //     id: lottery.id,
-        //     winner: '0xabcdef123456789',
-        //     winningPrice: fetchedTickets.length * lottery.price * 0.9, // Simulate 90% of the prize pool
-        // };
-        // setWinner(dummyWinner);
-
+        
+        // // Check if winner has been determined
+        // const winnerEvents = await provider.queryEvents({
+        //   query: {
+        //     MoveEventType: `${PACKAGE_ID}::decentralized_lottery::LotteryWinnerEvent`,
+        //     MoveEventField: {
+        //       path: "/id",
+        //       value: lottery.id
+        //     }
+        //   },
+        //   limit: 1,
+        // });
+        
+        // if (winnerEvents.data.length > 0) {
+        //   const winnerEvent = winnerEvents.data[0].parsedJson as any;
+        //   setWinner({
+        //     id: winnerEvent.id,
+        //     winner: winnerEvent.winner,
+        //     winningPrice: winnerEvent.winning_price / 1_000_000_000, // Convert MIST to SUI
+        //   });
+        // }
+      } catch (error) {
+        console.error('Error fetching lottery data:', error);
+      } finally {
         setLoading(false);
+      }
     };
-
+    
     fetchLotteryData();
-}, [lottery, account]);
+  }, [lottery, account]);
+
+//   useEffect(() => {
+//     const fetchLotteryData = async () => {
+//         // Simulating fetched ticket data
+//         const fetchedTickets = [
+//             { id: 'ticket_001', number: 1, boughtAt: Date.now() - 50000, buyer: "0x11" },
+//             { id: 'ticket_002', number: 2, boughtAt: Date.now() - 40000, buyer: "0x11" },
+//             { id: 'ticket_003', number: 3, boughtAt: Date.now() - 30000 , buyer: "0x11"},
+//         ];
+//         setTickets(fetchedTickets);
+
+//         if (account) {
+//             // Simulate filtering user-owned tickets (assuming user owns ticket_002)
+//             setUserTickets(fetchedTickets.filter(ticket => ticket.id === 'ticket_002'));
+//         }
+
+//         // Simulating fetched winner data
+//         // const dummyWinner = {
+//         //     id: lottery.id,
+//         //     winner: '0xabcdef123456789',
+//         //     winningPrice: fetchedTickets.length * lottery.price * 0.9, // Simulate 90% of the prize pool
+//         // };
+//         // setWinner(dummyWinner);
+
+//         setLoading(false);
+//     };
+
+//     fetchLotteryData();
+// }, [lottery, account]);
 
 
   const handleBuyTicket = async () => {
     if (!account) return;
-    
     setBuyingTicket(true);
     try {
-    //   const provider = new JsonRpcProvider();
-      
-      // Get the Clock object and lottery object
       const tx = new Transaction();
-      
-      const [clock] = tx.moveCall({
-        target: '0x6::clock::clock',
-      });
-      
       // Create SUI coin for payment
-      const [coin] = tx.splitCoins(tx.gas, [tx.pure(lottery.price * 1_000_000_000)]); // Convert SUI to MIST
+      const [coin] = tx.splitCoins(tx.gas, [tx.pure.u64(lottery.price * 1_000_000_000)]); // Convert SUI to MIST
       
-      // Buy ticket
       tx.moveCall({
         target: `${PACKAGE_ID}::decentralized_lottery::buy_ticket`,
         arguments: [
           tx.object(OWNER_OBJECT_ID),
           tx.object(lottery.id),
           coin,
-          clock,
+          tx.object("0x6"),
         ],
       });
       
-      // Execute transaction
-      const result = await wallet.signAndExecuteTransaction({
+      const txResult = await wallet.signAndExecuteTransaction({
         transaction: tx,
       });
-      
-      console.log('Bought ticket:', result);
-      
+      const eventsResult = await suiClient.queryEvents({ query: { Transaction: txResult.digest } });
+      if (eventsResult != undefined){
+        console.log('Bought ticket:', eventsResult);
+        const eventData = eventsResult.data[0]?.parsedJson as TicketEvent
+        const ticketData = {
+            id: eventData.id,
+            lotteryId: eventData.lotter_id,
+            buyer: eventData.buyer,
+            ticketNumber: eventData.ticket_number,
+            boughtAt: eventData.bought_at,
+        };
+        try {
+          const response = await axios.post(`http://localhost:3000/lotteries/${lottery.id}/buy`, ticketData, {
+            headers: {
+              'Content-Type': 'application/json'
+            }
+          });
+          console.log("Lottery created:", response.data);
+      } catch (error) {
+          console.error("Error creating lottery:", error.response?.data || error.message);
+      }
       // Refresh ticket list
       setTickets([...tickets, {
-        id: 'new-ticket', // Placeholder ID, would need to fetch the actual one
-        number: tickets.length,
-        boughtAt: Date.now(),
+        id: eventData.id, // Placeholder ID, would need to fetch the actual one
+        number: ticketData.ticketNumber,
+        boughtAt: new Date(Number(ticketData.boughtAt)),
+        buyer: ticketData.buyer
       }]);
+      }
       
     } catch (error) {
       console.error('Error buying ticket:', error);
@@ -201,9 +204,6 @@ const LotteryDetails: React.FC<LotteryDetailsProps> = ({ lottery, onBack }) => {
     
     setDeterminingWinner(true);
     try {
-    //   const provider = new JsonRpcProvider();
-      
-      // Create transaction to determine winner
       const tx = new Transaction();
       
       const [clock] = tx.moveCall({
@@ -257,12 +257,6 @@ const LotteryDetails: React.FC<LotteryDetailsProps> = ({ lottery, onBack }) => {
     
     setWithdrawing(true);
     try {
-    //   const provider = new JsonRpcProvider();
-      
-      // This is simplified - in a real app you'd need to:
-      // 1. Determine if the current user owns the winning ticket
-      // 2. Get the ticket object ID
-      
       const tx = new Transaction();
       
       const [clock] = tx.moveCall({
@@ -338,9 +332,7 @@ const LotteryDetails: React.FC<LotteryDetailsProps> = ({ lottery, onBack }) => {
   }
 
   return (
-    <div className="lottery-details">
-      {/* <button className="back-button" onClick={onBack}>← Back to Lotteries</button> */}
-      
+    <div className="lottery-details">      
       <div className="lottery-header">
         <div className="lottery-image-large">
           <img src={lottery.ticketUrl} alt={lottery.name} />
@@ -349,9 +341,9 @@ const LotteryDetails: React.FC<LotteryDetailsProps> = ({ lottery, onBack }) => {
         <div className="lottery-info-large">
           <h2>{lottery.name}</h2>
           <p className="lottery-status">
-            {Date.now() < lottery.startTime ? (
+            {Date.now() < new Date(lottery.startTime).getTime() ? (
               <span className="status upcoming">Upcoming</span>
-            ) : Date.now() < lottery.endTime ? (
+            ) : Date.now() < new Date(lottery.endTime).getTime() ? (
               <span className="status active">Active</span>
             ) : (
               <span className="status ended">Ended</span>
@@ -363,7 +355,7 @@ const LotteryDetails: React.FC<LotteryDetailsProps> = ({ lottery, onBack }) => {
           <p>Total Tickets Sold: {tickets.length}</p>
           <p>Prize Pool: {(lottery.price * tickets.length * 0.9).toFixed(2)} SUI (approx.)</p>
           
-          {isActive && (
+          {isUpcoming && (
             <button 
               className="buy-ticket-button" 
               onClick={handleBuyTicket}
@@ -424,9 +416,20 @@ const LotteryDetails: React.FC<LotteryDetailsProps> = ({ lottery, onBack }) => {
               <div key={ticket.id} className="ticket-card">
                 <p>Ticket #{ticket.number}</p>
                 <p>Purchased: {new Date(ticket.boughtAt).toLocaleString()}</p>
+                <p>
+                  id: <a href={`https://suiscan.xyz/testnet/object/${ticket.id}`} target="_blank" rel="noopener noreferrer">
+                    {ticket.id.slice(0, 6)}...{ticket.id.slice(-4)}
+                  </a>
+                </p>
+                <p>
+                  Buyer: <a href={`https://suiscan.xyz/address/${ticket.buyer}`} target="_blank" rel="noopener noreferrer">
+                    {ticket.buyer.slice(0, 6)}...{ticket.buyer.slice(-4)}
+                  </a>
+                </p>
               </div>
             ))}
           </div>
+
         )}
       </div>
     </div>

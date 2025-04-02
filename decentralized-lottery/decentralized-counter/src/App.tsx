@@ -1,14 +1,11 @@
 import { useState, useEffect } from 'react';
+import "@suiet/wallet-kit/style.css";
 import './App.css';
 import LotteryCreation from './components/LotteryCreation';
 import LotteryDetails from './components/LotteryDetails';
 import LotteryList from './components/LotteryList';
 import Header from './components/Header';
 import { ConnectButton, useWallet, WalletProvider } from "@suiet/wallet-kit";
-
-// Contract constants
-const PACKAGE_ID = 'PACKAGE_ID';
-const OWNER_OBJECT_ID = 'OWNER_OBJECT_ID';
 
 function App() {
   return (

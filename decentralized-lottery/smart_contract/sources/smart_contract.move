@@ -78,6 +78,8 @@ public struct LotteryTicketBuyEvent has copy, drop{
     bought_at: u64,
     created_at: u64,
     ticket_url: Url,
+    buyer: address,
+    lotter_id: ID
 }
 
 public struct LotteryWinnerEvent has copy, drop{
@@ -199,7 +201,7 @@ public fun buy_ticket(
     coin::put(&mut lottery.creator_commission, creator_commision_coin);
     coin::put(&mut lottery.price_pool, payment_coin);
     event::emit(LotteryTicketBuyEvent{
-        id: *lottery.id.as_inner(),
+        id: ticket_id,
         name: lottery.name,
         price: lottery.ticket_price,
         ticket_number: ticket_number,
@@ -208,6 +210,8 @@ public fun buy_ticket(
         bought_at: clock.timestamp_ms(),
         created_at: lottery.created_at,
         ticket_url: lottery.ticket_url,
+        buyer: ctx.sender(),
+        lotter_id: *lottery.id.as_inner()
     });
 }
 

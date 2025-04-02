@@ -18,14 +18,14 @@ public struct Ticket has key, store {
     ticket_number: u64,
 }
 
-public struct TicketMinted has copy, drop {
-    object_id: ID,         
-    owner: address,   
-    price: u64,
-    name: String,  
-    ticket_number: u64,
-    lottery_id: ID         
-}
+// public struct TicketMinted has copy, drop {
+//     object_id: ID,         
+//     owner: address,   
+//     price: u64,
+//     name: String,  
+//     ticket_number: u64,
+//     lottery_id: ID         
+// }
 
 public fun name(ticket: &Ticket): &String {
     &ticket.lottery_name
@@ -76,14 +76,14 @@ public fun buy_ticket(
         ticket_number
     };
 
-    event::emit(TicketMinted {
-        object_id: object::id(&ticket),
-        owner: sender,
-        price: price,
-        name: ticket.lottery_name,
-        ticket_number,
-        lottery_id
-    });
+    // event::emit(TicketMinted {
+    //     object_id: object::id(&ticket),
+    //     owner: sender,
+    //     price: price,
+    //     name: ticket.lottery_name,
+    //     ticket_number,
+    //     lottery_id
+    // });
 
     let ticket_id = object::id(&ticket);
     transfer::public_transfer(ticket, sender);

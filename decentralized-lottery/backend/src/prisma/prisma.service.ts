@@ -7,4 +7,4 @@ export class PrismaService {
     constructor() {
         this.prismaClient = new PrismaClient();
     }
-}
+} 
