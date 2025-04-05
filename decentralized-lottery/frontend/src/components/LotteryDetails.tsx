@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useWallet } from '@suiet/wallet-kit';
 import { Transaction } from '@mysten/sui/transactions';
-import { PACKAGE_ID, OWNER_OBJECT_ID, suiClient } from '../utils';
+import { PACKAGE_ID, OWNER_OBJECT_ID, suiClient, apiUrl } from '../utils';
 import axios from 'axios';
 
 interface Lottery {
@@ -10,14 +10,30 @@ interface Lottery {
   price: number;
   startTime: number;
   endTime: number;
-  createdAt: number;
+  creatorAddress: number;
+  pricePool: number;
   createdBy: string;
+  winningId: string;
+  winnerAddress: string;
   ticketUrl: string;
+  commissionWithdrawn: boolean;
+  pricePoolWithdrawn: boolean;
 }
 
 interface LotteryDetailsProps {
   lottery: Lottery;
   onBack: () => void;
+}
+
+interface getWinner{
+  id: string;
+  name: string;
+  winner: string;
+  winningPrice: number;
+  start_time: number;
+  end_time: number;
+  ticket_url: string;
+  created_at: number;
 }
 
 interface Ticket {
@@ -30,6 +46,7 @@ interface Ticket {
 interface Winner {
   id: string;
   winner: string;
+  winningId: string;
   winningPrice: number;
 }
 
@@ -44,31 +61,36 @@ interface TicketEvent {
   created_at: number,
   ticket_url: number,
   lotter_id: string,
-  buyer: string
+  buyer: string,
+  price_pool: number,
 }
 
-const LotteryDetails: React.FC<LotteryDetailsProps> = ({ lottery, onBack }) => {
+const LotteryDetails: React.FC<LotteryDetailsProps> = ({ lottery }) => {
   const wallet = useWallet();
   let account = wallet.account;
+  const [withdrawnPrice, setWithdrawnPrice] = useState(false);
+  const [price_pool, setPricePool] = useState(lottery.pricePool);
+  const [withdrawnCommission, setWithdrawnCommission] = useState(false);
   const [tickets, setTickets] = useState<Ticket[]>([]);
-  const [userTickets, setUserTickets] = useState<Ticket[]>([]);
+  // const [userTickets, setUserTickets] = useState<Ticket[]>([]);
   const [winner, setWinner] = useState<Winner | null>(null);
   const [loading, setLoading] = useState(true);
   const [buyingTicket, setBuyingTicket] = useState(false);
   const [determiningWinner, setDeterminingWinner] = useState(false);
   const [withdrawing, setWithdrawing] = useState(false);
 
-  const isActive = Date.now() >= new Date(lottery.startTime).getTime() && Date.now() <= new Date(lottery.endTime).getTime();
+  // const isActive = Date.now() >= new Date(lottery.startTime).getTime() && Date.now() <= new Date(lottery.endTime).getTime();
   const isEnded = Date.now() > new Date(lottery.endTime).getTime();
-  const isCreator = account?.address === lottery.createdBy;
+  const isCreator = account?.address === lottery?.creatorAddress.toString();
   const isUpcoming = Date.now() <= new Date(lottery.startTime).getTime()
   
   useEffect(() => {
     const fetchLotteryData = async () => {
+      // console.log(lottery, account);
       try {
-        const response = await axios.get(`http://localhost:3000/lotteries/${lottery.id}/tickets`);
-        const fetchedTickets = response.data.map((ticket : any) => ({
-          id: ticket.id,
+        const tickets = await axios.get(`${apiUrl}/${lottery.id}/tickets`);
+        const fetchedTickets = tickets.data.map((ticket : any) => ({
+          id: ticket.id,  
           number: ticket.ticketNumber,
           boughtAt: ticket.boughtAt,
           buyer: ticket.buyer,
@@ -76,30 +98,21 @@ const LotteryDetails: React.FC<LotteryDetailsProps> = ({ lottery, onBack }) => {
         
         setTickets(fetchedTickets);
         
-        if (account) {
-          setUserTickets(fetchedTickets.filter((ticket: any) => ticket.owner === account));
-        }
-        
-        // // Check if winner has been determined
-        // const winnerEvents = await provider.queryEvents({
-        //   query: {
-        //     MoveEventType: `${PACKAGE_ID}::decentralized_lottery::LotteryWinnerEvent`,
-        //     MoveEventField: {
-        //       path: "/id",
-        //       value: lottery.id
-        //     }
-        //   },
-        //   limit: 1,
-        // });
-        
-        // if (winnerEvents.data.length > 0) {
-        //   const winnerEvent = winnerEvents.data[0].parsedJson as any;
-        //   setWinner({
-        //     id: winnerEvent.id,
-        //     winner: winnerEvent.winner,
-        //     winningPrice: winnerEvent.winning_price / 1_000_000_000, // Convert MIST to SUI
-        //   });
+        // if (account) {
+        //   setUserTickets(fetchedTickets.filter((ticket: any) => ticket.owner === account));
         // }
+        
+        if(lottery.winningId && lottery.winnerAddress){
+          const winnerData = {
+            id: lottery.id,
+            winner: lottery.winnerAddress,
+            winningId: lottery.winningId,
+            winningPrice: lottery.price * tickets.data.length * 0.9,
+          };
+          setWinner(winnerData);
+          setWithdrawnPrice(lottery.pricePoolWithdrawn);
+          setWithdrawnCommission(lottery.commissionWithdrawn);
+        }
       } catch (error) {
         console.error('Error fetching lottery data:', error);
       } finally {
@@ -110,42 +123,11 @@ const LotteryDetails: React.FC<LotteryDetailsProps> = ({ lottery, onBack }) => {
     fetchLotteryData();
   }, [lottery, account]);
 
-//   useEffect(() => {
-//     const fetchLotteryData = async () => {
-//         // Simulating fetched ticket data
-//         const fetchedTickets = [
-//             { id: 'ticket_001', number: 1, boughtAt: Date.now() - 50000, buyer: "0x11" },
-//             { id: 'ticket_002', number: 2, boughtAt: Date.now() - 40000, buyer: "0x11" },
-//             { id: 'ticket_003', number: 3, boughtAt: Date.now() - 30000 , buyer: "0x11"},
-//         ];
-//         setTickets(fetchedTickets);
-
-//         if (account) {
-//             // Simulate filtering user-owned tickets (assuming user owns ticket_002)
-//             setUserTickets(fetchedTickets.filter(ticket => ticket.id === 'ticket_002'));
-//         }
-
-//         // Simulating fetched winner data
-//         // const dummyWinner = {
-//         //     id: lottery.id,
-//         //     winner: '0xabcdef123456789',
-//         //     winningPrice: fetchedTickets.length * lottery.price * 0.9, // Simulate 90% of the prize pool
-//         // };
-//         // setWinner(dummyWinner);
-
-//         setLoading(false);
-//     };
-
-//     fetchLotteryData();
-// }, [lottery, account]);
-
-
   const handleBuyTicket = async () => {
     if (!account) return;
     setBuyingTicket(true);
     try {
       const tx = new Transaction();
-      // Create SUI coin for payment
       const [coin] = tx.splitCoins(tx.gas, [tx.pure.u64(lottery.price * 1_000_000_000)]); // Convert SUI to MIST
       
       tx.moveCall({
@@ -163,7 +145,7 @@ const LotteryDetails: React.FC<LotteryDetailsProps> = ({ lottery, onBack }) => {
       });
       const eventsResult = await suiClient.queryEvents({ query: { Transaction: txResult.digest } });
       if (eventsResult != undefined){
-        console.log('Bought ticket:', eventsResult);
+        // console.log('Bought ticket:', eventsResult);
         const eventData = eventsResult.data[0]?.parsedJson as TicketEvent
         const ticketData = {
             id: eventData.id,
@@ -171,20 +153,21 @@ const LotteryDetails: React.FC<LotteryDetailsProps> = ({ lottery, onBack }) => {
             buyer: eventData.buyer,
             ticketNumber: eventData.ticket_number,
             boughtAt: eventData.bought_at,
+            pricePool: eventData.price_pool,
         };
+        setPricePool(eventData.price_pool / 1_000_000_000);
+        // console.log(ticketData);
         try {
-          const response = await axios.post(`http://localhost:3000/lotteries/${lottery.id}/buy`, ticketData, {
+          await axios.post(`${apiUrl}/${lottery.id}/buy`, ticketData, {
             headers: {
               'Content-Type': 'application/json'
             }
           });
-          console.log("Lottery created:", response.data);
-      } catch (error) {
-          console.error("Error creating lottery:", error.response?.data || error.message);
-      }
-      // Refresh ticket list
+        } catch (error) {
+            console.error("Error creating lottery:", (error as any).response?.data || (error as any).message);
+        }
       setTickets([...tickets, {
-        id: eventData.id, // Placeholder ID, would need to fetch the actual one
+        id: eventData.id,
         number: ticketData.ticketNumber,
         boughtAt: new Date(Number(ticketData.boughtAt)),
         buyer: ticketData.buyer
@@ -193,7 +176,7 @@ const LotteryDetails: React.FC<LotteryDetailsProps> = ({ lottery, onBack }) => {
       
     } catch (error) {
       console.error('Error buying ticket:', error);
-      alert('Failed to buy ticket. Check console for details.');
+      // alert('Failed to buy ticket. Check console for details.');
     } finally {
       setBuyingTicket(false);
     }
@@ -201,52 +184,50 @@ const LotteryDetails: React.FC<LotteryDetailsProps> = ({ lottery, onBack }) => {
 
   const handleDetermineWinner = async () => {
     if (!account) return;
-    
     setDeterminingWinner(true);
     try {
       const tx = new Transaction();
-      
-      const [clock] = tx.moveCall({
-        target: '0x6::clock::clock',
-      });
-      
-      // Get a random object
-      // In actual implementation, you'd use a proper random generator from Sui
-      const [random] = tx.moveCall({
-        target: '0x2::random::new_generator',
-        arguments: [
-          tx.object('0x6'), // Placeholder for a proper entropy source ID
-        ],
-      });
-      
       // Determine winner
       tx.moveCall({
         target: `${PACKAGE_ID}::decentralized_lottery::determine_winner`,
         arguments: [
           tx.object(lottery.id),
-          random,
-          clock,
+          tx.object.random(),
+          tx.object("0x6"),
         ],
       });
       
       // Execute transaction
-      const result = await wallet.signAndExecuteTransaction({
+      const txResult = await wallet.signAndExecuteTransaction({
         transaction: tx,
       });
-      
-      console.log('Determined winner:', result);
-      
-      // Refresh winner info
-      // This is simplified - would need to query the updated object or events
-      setWinner({
-        id: lottery.id,
-        winner: 'pending-fetch', // Placeholder
-        winningPrice: lottery.price * tickets.length * 0.9, // Approximation accounting for commissions
-      });
-      
+      const eventsResult = await suiClient.queryEvents({ query: { Transaction: txResult.digest } });
+      if (eventsResult != undefined){
+        // console.log('Winner determined:', eventsResult);
+        const eventData = eventsResult.data[0]?.parsedJson as getWinner;
+        const winnerData = {
+          winning_id: eventData.winner
+        }
+        try {
+          const response = await axios.post(`${apiUrl}/${lottery.id}/setWinner`, winnerData, {
+            headers: {
+              'Content-Type': 'application/json'
+            }
+          });
+          // console.log("winner selected:", response.data);
+          setWinner({
+            id: lottery.id,
+            winningId: eventData.winner,
+            winner: response.data,
+            winningPrice: lottery.price * tickets.length * 0.9,
+          });
+        } catch (error) {
+            console.error("Error creating lottery:", (error as any).response?.data || (error as any).message);
+        }
+      }
     } catch (error) {
       console.error('Error determining winner:', error);
-      alert('Failed to determine winner. Check console for details.');
+      // alert('Failed to determine winner. Check console for details.');
     } finally {
       setDeterminingWinner(false);
     }
@@ -254,36 +235,37 @@ const LotteryDetails: React.FC<LotteryDetailsProps> = ({ lottery, onBack }) => {
 
   const handleWithdrawPrize = async () => {
     if (!account || !winner) return;
-    
     setWithdrawing(true);
     try {
       const tx = new Transaction();
-      
-      const [clock] = tx.moveCall({
-        target: '0x6::clock::clock',
-      });
-      
-      // Withdraw prize
       tx.moveCall({
         target: `${PACKAGE_ID}::decentralized_lottery::withdraw_price`,
         arguments: [
           tx.object(lottery.id),
-          tx.object('YOUR_TICKET_OBJECT_ID'), // You'd need to find the user's winning ticket ID
-          clock,
+          tx.object(lottery.winningId),
+          tx.object("0x6"),
         ],
       });
       
-      // Execute transaction
       const result = await wallet.signAndExecuteTransaction({
         transaction: tx,
       });
-      
-      console.log('Withdrew prize:', result);
-      alert('Prize withdrawn successfully!');
+      console.log(result);
+      if (result){
+        try {
+          const response = await axios.post(`${apiUrl}/${lottery.id}/priceWithdrawn`);
+          setWithdrawnPrice(response.data);
+        } catch (error) {
+            console.error("Error creating lottery:", (error as any).response?.data || (error as any).message);
+        }
+        
+      }
+      // console.log('Withdrew prize:', result);
+      // alert('Prize withdrawn successfully!');
       
     } catch (error) {
-      console.error('Error withdrawing prize:', error);
-      alert('Failed to withdraw prize. Check console for details.');
+      // console.error('Error withdrawing prize:', error);
+      // alert('Failed to withdraw prize. Check console for details.');
     } finally {
       setWithdrawing(false);
     }
@@ -291,37 +273,35 @@ const LotteryDetails: React.FC<LotteryDetailsProps> = ({ lottery, onBack }) => {
 
   const handleWithdrawCommission = async () => {
     if (!account) return;
-    
     setWithdrawing(true);
     try {
-    //   const provider = new JsonRpcProvider();
-      
       const tx = new Transaction();
-      
-      const [clock] = tx.moveCall({
-        target: '0x6::clock::clock',
-      });
-      
-      // Withdraw commission
       tx.moveCall({
         target: `${PACKAGE_ID}::decentralized_lottery::withdraw_commission`,
         arguments: [
           tx.object(lottery.id),
-          clock,
+          tx.object("0x6"),
         ],
       });
-      
-      // Execute transaction
       const result = await wallet.signAndExecuteTransaction({
         transaction: tx,
       });
-      
-      console.log('Withdrew commission:', result);
-      alert('Commission withdrawn successfully!');
+      if (result){
+        try {
+          const response = await axios.post(`${apiUrl}/${lottery.id}/commissionWithdrawn`);
+          // console.log(response.data);
+          setWithdrawnCommission(response.data);
+        } catch (error) {
+            console.error("Error creating lottery:", (error as any).response?.data || (error as any).message);
+        }
+        
+      }
+      // console.log('Withdrew commission:', result);
+      // alert('Commission withdrawn successfully!');
       
     } catch (error) {
       console.error('Error withdrawing commission:', error);
-      alert('Failed to withdraw commission. Check console for details.');
+      // alert('Failed to withdraw commission. Check console for details.');
     } finally {
       setWithdrawing(false);
     }
@@ -349,11 +329,16 @@ const LotteryDetails: React.FC<LotteryDetailsProps> = ({ lottery, onBack }) => {
               <span className="status ended">Ended</span>
             )}
           </p>
+          <p>
+            id: <a href={`https://suiscan.xyz/testnet/object/${lottery.id}`} target="_blank" rel="noopener noreferrer">
+              {lottery.id.slice(0, 6)}...{lottery.id.slice(-4)}
+            </a>
+          </p>
           <p>Ticket Price: {lottery.price} SUI</p>
           <p>Start Time: {new Date(lottery.startTime).toLocaleString()}</p>
           <p>End Time: {new Date(lottery.endTime).toLocaleString()}</p>
           <p>Total Tickets Sold: {tickets.length}</p>
-          <p>Prize Pool: {(lottery.price * tickets.length * 0.9).toFixed(2)} SUI (approx.)</p>
+          <p>Prize Pool: {price_pool} SUI (approx.)</p>
           
           {isUpcoming && (
             <button 
@@ -365,7 +350,7 @@ const LotteryDetails: React.FC<LotteryDetailsProps> = ({ lottery, onBack }) => {
             </button>
           )}
           
-          {isEnded && !winner && isCreator && (
+          {isEnded && !winner && (
             <button 
               className="determine-winner-button" 
               onClick={handleDetermineWinner}
@@ -378,11 +363,14 @@ const LotteryDetails: React.FC<LotteryDetailsProps> = ({ lottery, onBack }) => {
           {winner && (
             <div className="winner-info">
               <h3>Winner Determined!</h3>
-              <p>Winning Ticket: {winner.winner.substring(0, 10)}...</p>
+              <p>
+                Winning Ticket: <a href={`https://suiscan.xyz/testnet/object/${winner.winningId}`} target="_blank" rel="noopener noreferrer">
+                    {winner.winningId.slice(0, 6)}...{winner.winningId.slice(-4)}
+                  </a>
+                </p>
               <p>Prize Amount: {winner.winningPrice.toFixed(2)} SUI</p>
               
-              {/* This logic is simplified - you'd need to check if user owns the winning ticket */}
-              {account && (
+              {account?.address == lottery.winnerAddress && !withdrawnPrice && (
                 <button 
                   className="withdraw-prize-button" 
                   onClick={handleWithdrawPrize}
@@ -392,7 +380,7 @@ const LotteryDetails: React.FC<LotteryDetailsProps> = ({ lottery, onBack }) => {
                 </button>
               )}
               
-              {isCreator && (
+              {isCreator && !withdrawnCommission && (
                 <button 
                   className="withdraw-commission-button" 
                   onClick={handleWithdrawCommission}

@@ -28,18 +28,24 @@ export class LotteryController {
     return await this.lotteryService.buyTicket(id, data);
   }
 
-  @Post(':id/draw')
-  async drawWinner(@Param('id') id: string) {
-    return await this.lotteryService.drawWinner(id);
+  @Post(':id/priceWithdrawn')
+  async priceWithdrawn(@Param('id') id: string) {
+    return await this.lotteryService.priceWithdrawn(id);
   }
 
-  @Post(':id/withdraw')
-  async withdraw(@Param('id') id: string, @Body() data: { account: string }) {
-    return await this.lotteryService.withdraw(id, data.account);
+  @Post(':id/commissionWithdrawn')
+  async commissionWithdrawn(@Param('id') id: string) {
+    return await this.lotteryService.commissionWithdrawn(id);
+  }
+
+  @Post(':id/setWinner')
+  async setWinner(@Param('id') id: string, @Body() data: { winning_id: string }) {
+    return await this.lotteryService.setWinner(id, data);
   }
 
   @Get(':id/tickets')
   async getTickets(@Param('id') id: string) {
+    // console.log('getTickets', id);
     return await this.lotteryService.getTicketsByLotteryId(id);
   }
 }

@@ -17,5 +17,6 @@ export type TicketData = {
   lotteryId:  string,
   buyer: string,
   ticketNumber: number,
-  boughtAt: Date
+  boughtAt: Date,
+  pricePool: number,
 }

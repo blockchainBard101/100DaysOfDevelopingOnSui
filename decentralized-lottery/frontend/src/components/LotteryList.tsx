@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from "axios";
+import { apiUrl } from '../utils';
 
 interface Lottery {
   id: string;
@@ -8,8 +9,13 @@ interface Lottery {
   startTime: number;
   endTime: number;
   createdAt: number;
-  createdBy: string;
+  creatorAddress: string;
+  pricePool: number;
+  winningId: string;
+  winnerAddress: string;
   ticketUrl: string;
+  commissionWithdrawn: boolean;
+  pricePoolWithdrawn: boolean;
 }
 
 interface LotteryListProps {
@@ -23,18 +29,24 @@ const LotteryList: React.FC<LotteryListProps> = ({ onSelectLottery }) => {
   useEffect(() => {
     const fetchLotteries = async () => {
       try {
-        const response = await axios.get("http://localhost:3000/lotteries");
+        const response = await axios.get(`${apiUrl}`);
+        // console.log(response.data);
         const formattedLotteries = response.data.map((lottery: any) => ({
           id: lottery.id,
           name: lottery.name,
-          price: lottery.ticketPrice / 1_000_000_000, // Convert MIST to SUI
+          price: lottery.ticketPrice / 1_000_000_000,
           startTime: lottery.startTime,
           endTime: lottery.endTime,
           createdAt: lottery.createdAt,
-          createdBy: lottery.createdBy,
+          creatorAddress: lottery.creatorAddress,
+          pricePool: lottery.pricePool / 1_000_000_000,
+          winningId: lottery.winnerId,
+          winnerAddress: lottery.winnerAddress,
           ticketUrl: lottery.ticketUrl,
+          commissionWithdrawn: lottery.commissionWithdrawn,
+          pricePoolWithdrawn: lottery.pricePoolWithdrawn,
         }));
-        // console.log(formattedLotteries);
+        console.log(formattedLotteries);
         setLotteries(formattedLotteries);
       } catch (error) {
         console.error('Error fetching lotteries:', error);
@@ -52,44 +64,6 @@ const LotteryList: React.FC<LotteryListProps> = ({ onSelectLottery }) => {
     return <div className="loading">Loading lotteries...</div>;
   }
 
-  // useEffect(() => {
-  //   const dummyLotteries: Lottery[] = [
-  //     {
-  //       id: "1",
-  //       name: "Mega SUI Jackpot",
-  //       price: 10,
-  //       startTime: Date.now() - 1000000, // Started in the past
-  //       endTime: Date.now() + 5000000, // Ends in the future
-  //       createdAt: Date.now() - 2000000,
-  //       createdBy: "0x123",
-  //       ticketUrl: "https://pbs.twimg.com/profile_images/1892528995352154112/dwu9PI0R_400x400.jpg",
-  //     },
-  //     {
-  //       id: "2",
-  //       name: "Sui Lucky Draw",
-  //       price: 5,
-  //       startTime: Date.now() + 1000000, // Starts in the future
-  //       endTime: Date.now() + 7000000,
-  //       createdAt: Date.now() - 1000000,
-  //       createdBy: "0x456",
-  //       ticketUrl: "https://pbs.twimg.com/profile_images/1892528995352154112/dwu9PI0R_400x400.jpg",
-  //     },
-  //     {
-  //       id: "3",
-  //       name: "Golden Sui Lottery",
-  //       price: 20,
-  //       startTime: Date.now() - 5000000,
-  //       endTime: Date.now() - 1000000, // Ended in the past
-  //       createdAt: Date.now() - 6000000,
-  //       createdBy: "0x789",
-  //       ticketUrl: "https://pbs.twimg.com/profile_images/1892528995352154112/dwu9PI0R_400x400.jpg",
-  //     },
-  //   ];
-  
-  //   setLotteries(dummyLotteries);
-  //   setLoading(false);
-  // }, []);
-  
 
   if (lotteries.length === 0) {
     return <div className="no-lotteries">No lotteries found. Create one to get started!</div>;

@@ -38,7 +38,7 @@ fun call_init(scenario: &mut Scenario) {
     decentralized_lottery::call_init(scenario.ctx());
 }
 
-fun call_edit_commission(owner_commission: u8, creator_commission: u8, scenario: &mut Scenario){
+fun call_edit_commission(owner_commission: u32, creator_commission: u32, scenario: &mut Scenario){
     let cap = scenario.take_from_sender<Publisher>();
     let mut owner = scenario.take_shared<Owner>();
     owner.edit_commission(&cap, owner_commission, creator_commission);

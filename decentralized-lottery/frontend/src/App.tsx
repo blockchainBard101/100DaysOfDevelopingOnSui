@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState} from 'react';
 import "@suiet/wallet-kit/style.css";
 import './App.css';
 import LotteryCreation from './components/LotteryCreation';
@@ -42,7 +42,7 @@ function MainContent() {
       {view === 'list' && (
         <LotteryList
           onSelectLottery={(lottery) => {
-            setSelectedLottery(lottery);
+            setSelectedLottery(lottery as any);
             setView('details');
           }}
         />
@@ -68,5 +68,4 @@ function MainContent() {
     </div>
   );
 }
-
 export default App;

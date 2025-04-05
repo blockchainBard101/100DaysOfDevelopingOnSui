@@ -325,81 +325,109 @@ button:disabled {
   border-color: var(--accent-dark);
 }
 
-/* Lottery List */
 .lottery-list {
   width: 100%;
+  padding: var(--spacing-md);
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: var(--spacing-md);
+}
+
+.lottery-list h2 {
+  font-size: 1.5rem;
+  margin-bottom: var(--spacing-md);
+  text-align: center;
 }
 
 .lottery-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-  gap: var(--spacing-md);
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 1rem;
   width: 100%;
-  max-width: 800px;
-  margin-top: var(--spacing-md);
+  max-width: 900px;
 }
 
 .lottery-card {
-  border-radius: var(--border-radius-xl);
+  background: var(--card-color);
+  border-radius: 1rem;
   overflow: hidden;
-  box-shadow: var(--shadow-md);
-  transition: transform var(--transition-normal), box-shadow var(--transition-normal);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
   cursor: pointer;
-  background-color: var(--card-color);
-  height: auto;
   display: flex;
   flex-direction: column;
   align-items: center;
+  border: 1px solid var(--border-color);
+  padding-bottom: 0.5rem;
 }
 
 .lottery-card:hover {
-  transform: translateY(-3px);
-  box-shadow: var(--shadow-lg);
+  transform: translateY(-5px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
 }
 
 .lottery-image {
-  height: 80px;
-  overflow: hidden;
   width: 100%;
+  height: 90px;
+  overflow: hidden;
   border-bottom: 1px solid var(--border-color);
+  background-color: #f9f9f9;
 }
 
 .lottery-image img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform var(--transition-normal);
+  transition: transform 0.3s ease;
 }
 
 .lottery-card:hover .lottery-image img {
-  transform: scale(1.03);
+  transform: scale(1.05);
 }
 
 .lottery-info {
-  padding: var(--spacing-sm);
-  flex-grow: 1;
+  padding: 0.75rem;
+  width: 100%;
+  text-align: center;
   display: flex;
   flex-direction: column;
   align-items: center;
-  text-align: center;
-  width: 100%;
 }
 
 .lottery-info h3 {
-  margin-bottom: var(--spacing-sm);
-  font-size: 12px;
-  font-weight: 500;
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+  color: var(--text-primary);
+}
+
+.lottery-info p {
+  margin: 0.15rem 0;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
 }
 
 .lottery-status {
-  margin-top: auto;
-  display: flex;
-  justify-content: center;
-  width: 100%;
+  margin-top: 0.5rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 1rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.status.upcoming {
+  background-color: #f0f3ff;
+  color: #4a61dd;
+}
+
+.status.active {
+  background-color: #e9fbe9;
+  color: #28a745;
+}
+
+.status.ended {
+  background-color: #fdf0f0;
+  color: #d9534f;
 }
 
 .status {
@@ -437,45 +465,74 @@ button:disabled {
 
 
 /* Forms */
-.form-group {
-  margin-bottom: var(--spacing-lg);
+.lottery-creation {
   width: 100%;
-  max-width: 600px;
+  max-width: 700px;
+  margin: 0 auto;
+  padding: var(--spacing-xl) var(--spacing-md);
   display: flex;
   flex-direction: column;
   align-items: center;
+  background-color: var(--background-color);
+  border-radius: var(--border-radius-xl);
+  box-shadow: var(--shadow-md);
+}
+
+.lottery-creation h2 {
+  font-size: 1.75rem;
+  margin-bottom: var(--spacing-lg);
+  text-align: center;
+  color: var(--primary-dark);
+}
+
+form {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+/* Forms */
+.form-group {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
   transition: all var(--transition-normal);
 }
 
 .form-group label {
-  display: block;
   margin-bottom: var(--spacing-xs);
   font-weight: var(--font-weight-medium);
-  text-align: center;
   color: var(--primary-dark);
-  font-size: 14px;
-  letter-spacing: var(--letter-spacing-wide);
+  font-size: 0.875rem;
+  letter-spacing: 0.05em;
   text-transform: uppercase;
-  transition: color var(--transition-normal);
 }
 
 .form-group input,
 .form-group textarea,
 .form-group select {
   width: 100%;
-  padding: 12px var(--spacing-md);
+  padding: 0.75rem var(--spacing-md);
   background-color: var(--input-background);
   border: 1px solid var(--border-color);
   border-radius: var(--border-radius-md);
-  font-size: 16px;
+  font-size: 1rem;
+  color: var(--text-color);
   transition: all var(--transition-normal);
   box-shadow: var(--input-shadow);
-  color: var(--text-color);
+}
+
+.form-group textarea {
+  min-height: 120px;
+  resize: vertical;
+  line-height: 1.6;
 }
 
 .form-group input::placeholder,
 .form-group textarea::placeholder {
-  color: #999999;
+  color: #999;
   font-style: italic;
   transition: color var(--transition-normal);
 }
@@ -489,10 +546,28 @@ button:disabled {
   box-shadow: var(--input-focus-shadow);
 }
 
-.form-group textarea {
-  min-height: 120px;
-  resize: vertical;
-  line-height: 1.6;
+/* Button */
+form button {
+  padding: 0.75rem 1.5rem;
+  background-color: var(--primary-color);
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 600;
+  border: none;
+  border-radius: var(--border-radius-md);
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+form button:hover {
+  background-color: var(--primary-dark);
+  transform: translateY(-1px);
+}
+
+form button:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+  color: #666;
 }
 
 .input-container {
@@ -796,47 +871,121 @@ select {
 
 .lottery-header {
   display: grid;
-  grid-template-columns: 1fr 2fr;
-  gap: var(--spacing-xl);
-  margin-bottom: var(--spacing-xl);
+  grid-template-columns: 1fr 1.5fr;
+  gap: 2rem;
+  margin-bottom: 2rem;
   width: 100%;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 1.5rem;
+  padding: 1.5rem;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15);
 }
 
 .lottery-image-large {
-  height: 260px;
-  border-radius: var(--border-radius-xl);
+  height: 220px;
+  border-radius: 1rem;
   overflow: hidden;
   width: 100%;
-  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+  box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.2);
 }
 
 .lottery-image-large img {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  transition: transform 0.4s ease;
+}
+
+.lottery-image-large img:hover {
+  transform: scale(1.05);
 }
 
 .lottery-info-large {
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: flex-start;
+  gap: 0.5rem;
+  font-size: 0.95rem;
+  color: #534b4b;
 }
 
 .lottery-info-large h2 {
-  margin-bottom: var(--spacing-md);
+  margin-bottom: 0.5rem;
+  font-size: 1.5rem;
+  color: var(--primary-color);
+}
+
+.lottery-status .status {
+  font-weight: bold;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.5rem;
+  font-size: 0.8rem;
+}
+
+.status.upcoming {
+  background: #ffcc00;
+  color: #000;
+}
+
+.status.active {
+  background: #00c853;
+  color: #fff;
+}
+
+.status.ended {
+  background: #d32f2f;
+  color: #fff;
+}
+
+.lottery-info-large a {
+  color: var(--primary-color);
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.lottery-info-large a:hover {
+  text-decoration: underline;
+}
+
+button.buy-ticket-button,
+button.determine-winner-button,
+button.withdraw-prize-button,
+button.withdraw-commission-button {
+  background: var(--primary-color);
+  color: #fff;
+  padding: 0.5rem 1rem;
+  border-radius: 0.75rem;
+  font-weight: 600;
+  margin-top: 1rem;
+  border: none;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+button:hover:enabled {
+  background: var(--primary-color-dark);
+}
+
+button:disabled {
+  background: #aaa;
+  cursor: not-allowed;
 }
 
 .winner-info {
-  margin-top: var(--spacing-lg);
-  padding: var(--spacing-md);
-  background-color: var(--light-background);
-  border-radius: var(--border-radius-xl);
-  text-align: center;
+  margin-top: 1.5rem;
+  padding: 1rem;
+  background: rgba(0, 255, 127, 0.1);
+  border: 1px solid rgba(0, 255, 127, 0.3);
+  border-radius: 1rem;
+  text-align: left;
   width: 100%;
 }
 
 .winner-info h3 {
-  color: var(--success-color);
+  color: #00e676;
+  margin-bottom: 0.5rem;
 }
 
 .lottery-tickets {
@@ -848,17 +997,44 @@ select {
 }
 
 .ticket-grid {
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: var(--spacing-md);
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 1rem;
   width: 100%;
 }
 
 .ticket-card {
-  background-color: var(--light-background);
-  padding: var(--spacing-md);
-  border-radius: var(--border-radius-lg);
-  border-left: 4px solid var(--primary-color);
-  text-align: center;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border-radius: 1rem;
+  padding: 0.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  font-size: 0.85rem;
+  text-align: left;
+  color: #3d3b3b;
+}
+
+.ticket-card:hover {
+  transform: scale(1.03);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+}
+
+.ticket-card p {
+  margin: 0.3rem 0;
+  line-height: 1.2;
+  word-break: break-word;
+}
+
+.ticket-card a {
+  color: var(--primary-color);
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.ticket-card a:hover {
+  text-decoration: underline;
 }
 
 /* Action Buttons */
@@ -878,23 +1054,6 @@ select {
 }
 
 @media (max-width: 768px) {
-  .lottery-header {
-    grid-template-columns: 1fr;
-  }
-  
-  .lottery-image-large {
-    height: 200px;
-  }
-  
-  .lottery-grid {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-  .lottery-card {
-    width: 100%;
-    max-width: 400px;
-  }
   .header {
     flex-direction: column;
     gap: var(--spacing-md);
@@ -905,22 +1064,22 @@ select {
     width: 100%;
     justify-content: center;
   }
-  .form-group {
-    max-width: 100%;
+
+  .lottery-grid {
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
   }
 
-  .form-group label {
-    font-size: 12px;
+  .lottery-card {
+    border-radius: 0.75rem;
   }
 
-  .form-group input,
-  .form-group textarea,
-  .form-group select {
-    font-size: 14px;
-    padding: 10px;
+  .lottery-info h3 {
+    font-size: 0.85rem;
   }
 
-  
+  .lottery-info p {
+    font-size: 0.75rem;
+  }
 
   .lottery-info h3 {
     font-size: 10px;
@@ -935,6 +1094,38 @@ select {
   .lottery-grid {
     grid-template-columns: 1fr;
   }
+
+  .lottery-card {
+    flex-direction: row;
+    align-items: stretch;
+    padding: 0;
+  }
+
+  .lottery-image {
+    width: 100px;
+    height: auto;
+    border-bottom: none;
+    border-right: 1px solid var(--border-color);
+  }
+
+  .lottery-info {
+    align-items: flex-start;
+    text-align: left;
+    padding: 0.75rem;
+    flex: 1;
+  }
+
+  .lottery-info h3 {
+    font-size: 0.9rem;
+  }
+
+  .lottery-info p {
+    font-size: 0.75rem;
+  }
+
+  .lottery-status {
+    align-self: flex-start;
+  }
   
   .app-container {
     padding: var(--spacing-sm);
@@ -946,5 +1137,99 @@ select {
   
   h2 {
     font-size: 18px;
+  }
+
+  .lottery-creation {
+    box-shadow: none;
+    border-radius: 0;
+    padding: var(--spacing-md);
+  }
+
+  .form-group label {
+    font-size: 0.75rem;
+  }
+
+  .form-group input,
+  .form-group textarea {
+    font-size: 0.9rem;
+    padding: 0.65rem var(--spacing-sm);
+  }
+
+  form button {
+    width: 100%;
+  }
+}
+
+@media (max-width: 1024px) {
+  .lottery-info-large {
+    align-items: center;
+    text-align: center;
+  }
+
+  .lottery-info-large h2 {
+    font-size: 1.3rem;
+  }
+
+  button.buy-ticket-button,
+  button.determine-winner-button,
+  button.withdraw-prize-button,
+  button.withdraw-commission-button {
+    width: 100%;
+  }
+}
+
+@media (max-width: 768px) {
+  .ticket-grid {
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 0.75rem;
+  }
+
+  .ticket-card {
+    font-size: 0.8rem;
+    padding: 0.5rem;
+  }
+
+  .lottery-header {
+    padding: 1rem;
+  }
+
+  .lottery-image-large {
+    height: 180px;
+  }
+
+  .lottery-info-large {
+    font-size: 0.85rem;
+  }
+
+  .winner-info {
+    padding: 0.75rem;
+    font-size: 0.85rem;
+  }
+
+  .lottery-creation {
+    padding: var(--spacing-lg) var(--spacing-md);
+  }
+
+  .lottery-creation h2 {
+    font-size: 1.5rem;
+  }
+
+  form button {
+    font-size: 0.95rem;
+    padding: 0.6rem 1.2rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .ticket-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .lottery-info-large h2 {
+    font-size: 1.1rem;
+  }
+
+  .winner-info h3 {
+    font-size: 1rem;
   }
 }

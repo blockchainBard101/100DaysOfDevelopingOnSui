@@ -1,98 +1,192 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# 🎰 Decentralized Lottery API – Sui Chain
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+This project powers a decentralized lottery system built on the [Sui blockchain](https://sui.io). It indexes on-chain events into a PostgreSQL database via Prisma to provide fast, reliable access to lottery and ticket data.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## 🚀 Features
 
-## Description
+- Create and manage lotteries
+- Buy tickets
+- Set winners and handle withdrawals
+- Fetch all lotteries and tickets
+- Withdraw prize and commission funds
+- Syncs blockchain events into an off-chain DB
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+---
 
-## Project setup
+## 📦 API Endpoints
 
-```bash
-$ pnpm install
+All endpoints are prefixed with `/lotteries`.
+
+### `POST /lotteries/createLottery`
+
+**Description:** Create a new lottery.
+
+**Body:**
+
+```json
+{
+  "id": "string",
+  "name": "string",
+  "description": "string",
+  "ticketPrice": "100000000", 
+  "startTime": "timestamp",
+  "endTime": "timestamp",
+  "creatorAddress": "string",
+  "ticketUrl": "string",
+  "createdAt": "timestamp",
+  "pricePool": 0
+}
 ```
 
-## Compile and run the project
+**Response:**  
+`true` on success or `false` if the lottery already exists.
 
-```bash
-# development
-$ pnpm run start
+---
 
-# watch mode
-$ pnpm run start:dev
+### `GET /lotteries`
 
-# production mode
-$ pnpm run start:prod
+**Description:** Get all lotteries.
+
+**Response:**  
+Array of lottery objects.
+
+---
+
+### `GET /lotteries/:id`
+
+**Description:** Get a single lottery by ID.
+
+**Response:**  
+Lottery object or 404 if not found.
+
+---
+
+### `POST /lotteries/:id/buy`
+
+**Description:** Buy a ticket for a lottery.
+
+**Body:**
+
+```json
+{
+  "id": "ticket-id",
+  "lotteryId": "lottery-id",
+  "buyer": "wallet-address",
+  "ticketNumber": 1,
+  "boughtAt": "timestamp",
+  "pricePool": 100
+}
 ```
 
-## Run tests
+**Response:**  
+`true` if successful.
 
-```bash
-# unit tests
-$ pnpm run test
+---
 
-# e2e tests
-$ pnpm run test:e2e
+### `POST /lotteries/:id/setWinner`
 
-# test coverage
-$ pnpm run test:cov
+**Description:** Set the winning ticket for a lottery.
+
+**Body:**
+
+```json
+{
+  "winning_id": "ticket-id"
+}
 ```
 
-## Deployment
+**Response:**  
+Returns winner's address or throws error if no tickets exist.
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+---
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+### `POST /lotteries/:id/priceWithdrawn`
 
-```bash
-$ pnpm install -g mau
-$ mau deploy
-```
+**Description:** Mark prize as withdrawn by winner.
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+**Response:**  
+`true` if successful.
 
-## Resources
+---
 
-Check out a few resources that may come in handy when working with NestJS:
+### `POST /lotteries/:id/commissionWithdrawn`
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+**Description:** Mark commission as withdrawn by creator.
 
-## Support
+**Response:**  
+`true` if successful.
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+---
 
-## Stay in touch
+### `GET /lotteries/:id/tickets`
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+**Description:** Get all tickets purchased for a specific lottery.
 
-## License
+**Response:**  
+Array of ticket objects.
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+---
+
+## 🧠 Database Models (Prisma)
+
+### `Lottery`
+
+| Field               | Type     |
+|---------------------|----------|
+| id                  | String   |
+| name                | String   |
+| description         | String   |
+| ticketPrice         | BigInt   |
+| startTime           | DateTime |
+| endTime             | DateTime |
+| creatorAddress      | String   |
+| ticketUrl           | String   |
+| createdAt           | DateTime |
+| pricePool           | Int      |
+| winnerId            | String?  |
+| winnerAddress       | String?  |
+| commissionWithdrawn | Boolean  |
+| pricePoolWithdrawn  | Boolean  |
+
+---
+
+### `Ticket`
+
+| Field        | Type     |
+|--------------|----------|
+| id           | String   |
+| lotteryId    | String   |
+| buyer        | String   |
+| ticketNumber | Int      |
+| boughtAt     | DateTime |
+
+---
+
+### `Commission`
+
+| Field              | Type   |
+|--------------------|--------|
+| id                 | String |
+| lotteryId          | String |
+| ownerCommission    | BigInt |
+| creatorCommission  | BigInt |
+| collected          | Bool   |
+
+---
+
+## 🛠 Tech Stack
+
+- **Framework:** NestJS
+- **Database:** PostgreSQL + Prisma
+- **Blockchain:** Sui
+- **Event Syncing:** Off-chain indexing from on-chain events
+
+---
+
+## 📌 Notes
+
+- All time values should be passed as UNIX timestamps in milliseconds.
+- Data consistency is maintained by indexing on-chain events like lottery creation, ticket purchases, and winner declarations into the database.
+- Designed to support real-time UX without querying the chain directly every time.
+
+---

@@ -23,9 +23,12 @@ model Lottery {
   creatorAddress        String
   ticketUrl             String
   createdAt             DateTime
-  pricePool             Float
+  pricePool             Int
+  winnerAddress         String?
   winnerId              String?  // Stores the winning ticket ID
   tickets               Ticket[]
+  commissionWithdrawn Boolean @default(false)
+  pricePoolWithdrawn Boolean @default(false)
 }
 
 model Ticket {

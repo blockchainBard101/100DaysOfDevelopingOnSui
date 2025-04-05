@@ -1,10 +1,10 @@
 module smart_contract::ticket;
 use std::string::{Self, String};
 use sui::url::Url;
-use sui::event;
+// use sui::event;
 use sui::clock::{Clock};
 
-public struct Ticket has key, store {
+public struct Ticket has key{
     id: UID,                 
     lottery_name: String,            
     description: String,
@@ -86,7 +86,7 @@ public fun buy_ticket(
     // });
 
     let ticket_id = object::id(&ticket);
-    transfer::public_transfer(ticket, sender);
+    transfer::transfer(ticket, sender);
     ticket_id
 }
 

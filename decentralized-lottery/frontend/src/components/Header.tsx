@@ -1,4 +1,4 @@
-import { ConnectButton, useWallet } from "@suiet/wallet-kit";
+import { ConnectButton } from "@suiet/wallet-kit";
 
 const Header = () => {
   // const { connected, account } = useWallet();

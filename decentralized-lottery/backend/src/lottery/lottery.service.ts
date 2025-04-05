@@ -56,6 +56,11 @@ export class LotteryService {
   async buyTicket(id, data: TicketData ) {
     const lottery = await this.prisma.prismaClient.lottery.findUnique({ where: { id } });
     if (!lottery) throw new NotFoundException('Lottery not found');
+    const pricePool = Number(data.pricePool);
+    await this.prisma.prismaClient.lottery.update({
+      where: { id },
+      data: { pricePool },
+    });
     const boughtAt = new Date(Number(data.boughtAt))
     const ticketNumber = Number(data.ticketNumber)
     await this.prisma.prismaClient.ticket.create({
@@ -70,34 +75,49 @@ export class LotteryService {
     return true
   }
 
-  async drawWinner(lotteryId: string) {
+  async setWinner(lotteryId: string, data: { winning_id: string }) {
     const lottery = await this.prisma.prismaClient.lottery.findUnique({ where: { id: lotteryId }, include: { tickets: true } });
     if (!lottery || lottery.tickets.length === 0) throw new BadRequestException('No tickets sold');
 
-    const winnerTicket = lottery.tickets[Math.floor(Math.random() * lottery.tickets.length)];
+    const winningTicket = lottery.tickets.find(ticket => ticket.id === data.winning_id);
     
     await this.prisma.prismaClient.lottery.update({
       where: { id: lotteryId },
-      data: { winnerId: winnerTicket.id },
+      data: { winnerId: data.winning_id, winnerAddress: winningTicket?.buyer },
     });
 
-    return { message: 'Winner selected', winner: winnerTicket.buyer };
+    return winningTicket?.buyer ;
   }
 
-  async withdraw(lotteryId: string, account: string) {
+  async priceWithdrawn(lotteryId: string) {
     const lottery = await this.prisma.prismaClient.lottery.findUnique({ where: { id: lotteryId } });
     if (!lottery || !lottery.winnerId) throw new BadRequestException('No winner declared');
+    
+    await this.prisma.prismaClient.lottery.update({
+      where: { id: lotteryId },
+      data: { pricePoolWithdrawn: true },
+    });
 
-    // Implement smart contract logic for payout here
-    return { message: 'Winnings withdrawn', account, amount: 100 }; // Replace with blockchain logic
+    return true;
+  }
+
+  async commissionWithdrawn(lotteryId: string) {
+    const lottery = await this.prisma.prismaClient.lottery.findUnique({ where: { id: lotteryId } });
+    if (!lottery || !lottery.winnerId) throw new BadRequestException('No winner declared');
+    await this.prisma.prismaClient.lottery.update({
+      where: { id: lotteryId },
+      data: { commissionWithdrawn: true },
+    });
+    return true;
   }
 
   async getTicketsByLotteryId(lotteryId: string) {
     const tickets = await this.prisma.prismaClient.ticket.findMany({
       where: { lotteryId },
     });
+    // console.log('tickets', tickets);
   
-    if (!tickets.length) throw new NotFoundException('No tickets found for this lottery');
+    // if (!tickets.length) throw new NotFoundException('No tickets found for this lottery');
   
     return tickets;
   }

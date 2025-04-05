@@ -29,8 +29,8 @@ public struct DECENTRALIZED_LOTTERY has drop{}
 
 public struct Owner has key{
     id: UID,
-    owner_commision_percentage: u8,
-    creator_commision_percentage : u8,
+    owner_commision_percentage: u32,
+    creator_commision_percentage : u32,
     commissions: Balance<SUI>,
     decimal: u8,
 }
@@ -49,8 +49,8 @@ public struct Lottery has key{
     ticket_url: Url,
     created_at: u64,
     created_by: address,
-    owner_commision_percentage: u8,
-    creator_commision_percentage: u8,
+    owner_commision_percentage: u32,
+    creator_commision_percentage: u32,
     percentage_decimals: u8,
 }
 
@@ -63,8 +63,8 @@ public struct LotteryCreatedEvent has copy, drop{
     created_at: u64,  
     created_by: address,
     ticket_url: Url,
-    owner_commision_percentage: u8,
-    creator_commision_percentage: u8,
+    owner_commision_percentage: u32,
+    creator_commision_percentage: u32,
     percentage_decimals: u8,
 }
 
@@ -79,7 +79,8 @@ public struct LotteryTicketBuyEvent has copy, drop{
     created_at: u64,
     ticket_url: Url,
     buyer: address,
-    lotter_id: ID
+    lotter_id: ID,
+    price_pool: u64,
 }
 
 public struct LotteryWinnerEvent has copy, drop{
@@ -94,8 +95,8 @@ public struct LotteryWinnerEvent has copy, drop{
 }
 
 public struct EditedCommissionEvent has copy, drop{
-    owner_commision_percentage: u8,
-    creator_commision_percentage: u8,
+    owner_commision_percentage: u32,
+    creator_commision_percentage: u32,
 }
 
 public struct PriceWithdrawEvent has copy, drop{
@@ -118,8 +119,8 @@ fun init(otw: DECENTRALIZED_LOTTERY, ctx: &mut TxContext){
     let publisher : Publisher = package::claim(otw, ctx);
     let owner = Owner{
         id: object::new(ctx),
-        owner_commision_percentage: 0,
-        creator_commision_percentage: 0,
+        owner_commision_percentage: 250,
+        creator_commision_percentage: 250,
         commissions: balance::zero(),
         decimal: 2,
     };
@@ -127,7 +128,7 @@ fun init(otw: DECENTRALIZED_LOTTERY, ctx: &mut TxContext){
     transfer::share_object(owner);
 }
 
-public entry fun edit_commission(owner: &mut Owner, cap: &Publisher, owner_commision_percentage: u8, creator_commision_percentage: u8){
+public entry fun edit_commission(owner: &mut Owner, cap: &Publisher, owner_commision_percentage: u32, creator_commision_percentage: u32){
     assert!(cap.from_module<Owner>(), ENotAuthorized);
     owner.owner_commision_percentage = owner_commision_percentage;
     owner.creator_commision_percentage = creator_commision_percentage;
@@ -211,7 +212,8 @@ public fun buy_ticket(
         created_at: lottery.created_at,
         ticket_url: lottery.ticket_url,
         buyer: ctx.sender(),
-        lotter_id: *lottery.id.as_inner()
+        lotter_id: *lottery.id.as_inner(),
+        price_pool: lottery.price_pool.value(),
     });
 }
 
@@ -294,9 +296,8 @@ public fun get_lottery_winning_ticket(lottery: &Lottery): Option<ID>{
 }
 
 fun get_percent(amount: u64, percent: u64, decimals: u64): u64 {
-    let scaled_percent = percent * pow(10, decimals);
     let scale = pow(100, decimals);
-    amount * scaled_percent / scale
+    amount * percent / scale
 }
 
 fun pow(base: u64, exp: u64): u64 {

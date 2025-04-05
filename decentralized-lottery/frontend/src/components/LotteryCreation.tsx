@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useWallet } from "@suiet/wallet-kit";
 import { Transaction } from '@mysten/sui/transactions';
-import { PACKAGE_ID, OWNER_OBJECT_ID } from '../utils';
+import { PACKAGE_ID, OWNER_OBJECT_ID, apiUrl } from '../utils';
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import axios from "axios";
@@ -30,15 +30,15 @@ const LotteryCreation: React.FC<LotteryCreationProps> = ({ onCreated }) => {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [ticketPrice, setTicketPrice] = useState('');
-  const [startTime, setStartTime] = useState(null);
-  const [endTime, setEndTime] = useState(null);
+  const [startTime, setStartTime] = useState<Date | null>(null);
+  const [endTime, setEndTime] = useState<Date | null>(null);
   const [ticketUrl, setTicketUrl] = useState('');
   const [isCreating, setIsCreating] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name || !description || !ticketPrice || !startTime || !endTime || !ticketUrl) {
-      alert('Please fill in all fields');
+      // alert('Please fill in all fields');
       return;
     }
 
@@ -80,23 +80,21 @@ const LotteryCreation: React.FC<LotteryCreationProps> = ({ onCreated }) => {
             pricePool: 0
         };
         try {
-            const response = await axios.post("http://localhost:3000/lotteries/createLottery", {
+            const response = await axios.post(`${apiUrl}/createLottery`, {
                 ...lotteryData,
                 ticketPrice: lotteryData.ticketPrice.toString()
             });
     
             console.log("Lottery created:", response.data);
         } catch (error) {
-            console.error("Error creating lottery:", error.response?.data || error.message);
+            console.error("Error creating lottery:", (error as any).response?.data || (error as any).message);
         }
-        console.log(eventData);
-        console.log(Number(ticketPrice) * 1_000_000_000);
       }
       console.log('Created lottery:');
       onCreated();
     } catch (error) {
       console.error('Error creating lottery:', error);
-      alert('Failed to create lottery. Check console for details.');
+      // alert('Failed to create lottery. Check console for details.');
     } finally {
       setIsCreating(false);
     }
